@@ -1,12 +1,13 @@
 package main
 
 import (
-	"os"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"os"
+	"tesla-app/server/common"
 	"tesla-app/server/routes"
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -19,6 +20,11 @@ func main() {
 	token := os.Getenv("API_KEY")
 	log.Println("Token: " + token)
 
+	// Auth
+	http.HandleFunc("/auth", getTeslaAuth.GetTeslaAuth)
+	http.HandleFunc("/callback", getTeslaAuth.AuthCallBack)
+
+	// Data
 	http.HandleFunc("/car", getdata.GetCarStatus)
 
 	fmt.Println("Starting server on port: 8080")
