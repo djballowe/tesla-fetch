@@ -13,24 +13,10 @@ import (
 	"sync"
 )
 
-type TokenResponse struct {
+type Token struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
-
-var (
-	stateStore = make(map[string]string)
-	tokenStore = make(map[string]TokenResponse)
-	storeMutex sync.Mutex
-)
-
-var (
-	clientId     = os.Getenv("CLIENT_ID")
-	clientSecret = os.Getenv("CLIENT_SECRTET")
-	audience     = os.Getenv("AUDIENCE")
-	redirectUri  = os.Getenv("REDIRECT_URI")
-	scope        = os.Getenv("SCOPES")
-)
 
 type Config struct {
 	ClientId     string
@@ -39,6 +25,12 @@ type Config struct {
 	RedirectUri  string
 	Scope        string
 }
+
+var (
+	stateStore string
+	tokenStore = make(map[string]Token)
+	storeMutex sync.Mutex
+)
 
 func loadEnvConfig() (*Config, error) {
 	config := &Config{
@@ -66,8 +58,9 @@ func GetTeslaAuth(writer http.ResponseWriter, req *http.Request) {
 	}
 
 	state := generateState()
+	fmt.Println(state)
 	storeMutex.Lock()
-	stateStore[state] = state
+	stateStore = state
 	storeMutex.Unlock()
 
 	authData := map[string]string{
@@ -86,6 +79,8 @@ func GetTeslaAuth(writer http.ResponseWriter, req *http.Request) {
 	baseUrl.RawQuery = params.Encode()
 	authUrl := baseUrl.String()
 
+	fmt.Println("State stored redirecting...")
+
 	http.Redirect(writer, req, authUrl, http.StatusFound)
 }
 
@@ -98,24 +93,34 @@ func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
 	}
 
 	storeMutex.Lock()
-	storedState, exists := stateStore[state]
-	if !exists || storedState != state {
+	storedState := stateStore
+	fmt.Println(storedState, "||", state)
+	if storedState != state {
 		http.Error(writer, "State does not match", http.StatusBadRequest)
 		return
 	}
+	storeMutex.Unlock()
 
-	token, err := exchangeCodeForToken(code)
+	tokens, err := exchangeCodeForToken(code)
 	if err != nil {
 		http.Error(writer, "Failed to get auth token", http.StatusInternalServerError)
 		return
 	}
 
 	storeMutex.Lock()
-	tokenStore[state] = *token
+	token := Token{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	}
+	tokenStore[state] = token
 	storeMutex.Unlock()
+
+	fmt.Fprintf(writer, "Auth successful token stored")
 }
 
-func exchangeCodeForToken(code string) (*TokenResponse, error) {
+func exchangeCodeForToken(code string) (*Token, error) {
+	fmt.Println("Exchanging code for token...")
+
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/token")
 	if err != nil {
 		return nil, err
@@ -148,7 +153,7 @@ func exchangeCodeForToken(code string) (*TokenResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	var tokenResponse TokenResponse
+	var tokenResponse Token
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
 		return nil, err
 	}
@@ -163,6 +168,16 @@ func generateState() string {
 	return base64.URLEncoding.EncodeToString(b)
 }
 
-//func GetTokenStore() (*sync.Mutex, map[string]TokenResponse, string) {
-//	return &storeMutex, tokenStore, stateStore[state]
-//}
+func GetTokenStore() (map[string]Token, string) {
+	fmt.Println("returning getTokenStore")
+	storeMutex.Lock()
+	defer storeMutex.Unlock()
+	copyStore := make(map[string]Token)
+	stateCopy := stateStore
+
+	for k, v := range tokenStore {
+		copyStore[k] = v
+	}
+
+	return copyStore, stateCopy
+}
