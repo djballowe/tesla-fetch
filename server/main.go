@@ -23,6 +23,7 @@ func main() {
 	// Auth
 	http.HandleFunc("/auth", getTeslaAuth.GetTeslaAuth)
 	http.HandleFunc("/callback", getTeslaAuth.AuthCallBack)
+	http.Handle("/.well-known/", http.StripPrefix("/.well-known/", http.FileServer(http.Dir("./.well-known"))))
 
 	// Data
 	http.HandleFunc("/car", getdata.GetCarStatus)
