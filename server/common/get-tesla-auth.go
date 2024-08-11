@@ -169,7 +169,7 @@ func generateState() string {
 }
 
 func GetTokenStore() (map[string]Token, string) {
-	fmt.Println("returning getTokenStore")
+	fmt.Println("Getting Token Store")
 	storeMutex.Lock()
 	defer storeMutex.Unlock()
 	copyStore := make(map[string]Token)
