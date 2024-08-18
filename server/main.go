@@ -5,7 +5,6 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
-	"os"
 	"tesla-app/server/common"
 	"tesla-app/server/routes"
 )
@@ -17,13 +16,16 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	token := os.Getenv("API_KEY")
-	log.Println("Token: " + token)
-
 	// Auth
+<<<<<<< Updated upstream
 	http.HandleFunc("/auth", getTeslaAuth.GetTeslaAuth)
 	http.HandleFunc("/callback", getTeslaAuth.AuthCallBack)
 	http.Handle("/.well-known/", http.StripPrefix("/.well-known/", http.FileServer(http.Dir("./.well-known"))))
+=======
+	http.HandleFunc("/auth", common.GetTeslaAuth)
+	http.HandleFunc("/callback", common.AuthCallBack)
+	http.HandleFunc("/honk", getdata.GetChargeState)
+>>>>>>> Stashed changes
 
 	// Data
 	http.HandleFunc("/car", getdata.GetCarStatus)
