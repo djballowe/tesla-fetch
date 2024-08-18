@@ -1,4 +1,4 @@
-package getTeslaAuth
+package common
 
 import (
 	"bytes"
