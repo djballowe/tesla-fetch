@@ -17,7 +17,7 @@ func Honk(writer http.ResponseWriter, req *http.Request) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", baseUrl+"/vehicles/1493089035103228/command/honk_horn", nil)
+	req, err := http.NewRequest("POST", baseUrl+"/vehicles/{id}/command/honk_horn", nil)
 	if err != nil {
 		http.Error(writer, "Failed to create honk horn command", http.StatusInternalServerError)
 	}

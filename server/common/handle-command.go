@@ -7,7 +7,7 @@ import (
 
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
-	"github.com/teslamotors/vehicle-command/pkg/vehicle"
+//	"github.com/teslamotors/vehicle-command/pkg/vehicle"
 )
 
 type Request struct {

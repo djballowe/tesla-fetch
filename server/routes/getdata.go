@@ -1,11 +1,11 @@
 package getdata
 
 import (
-	"bytes"
+	//	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	//	"log"
 	"net/http"
 	"os"
 	"tesla-app/server/common"
@@ -15,6 +15,22 @@ type Command struct {
 	AuthToken string
 	Vin       string
 	Command   string
+}
+
+type Return struct {
+	State               string `json:"state"`
+	BatteryLevel        int    `json:"battery_level"`
+	ChargeRate          int    `json:"charge_rate"`
+	ChargingState       string `json:"chargin_state"`
+	MinutesToFullCharge int    `json:"minutes_to_full_charge"`
+	InsideTemp          int    `json:"inside_temp"`
+	IsClimateOn         bool   `json:"is_climate_on"`
+	IsPreconditioning   bool   `json:"is_preconditioning"`
+	OutsideTemp         int    `json:"outside_temp"`
+	Locked              bool   `json:"locked"`
+	Odometer            int    `json:"odometer"`
+	Color               string `json:"exterior_color"`
+	VehicleName         string `json:"vehicle_name"`
 }
 
 func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
@@ -27,19 +43,24 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	}
 	tokenStore, state := common.GetTokenStore()
 	baseUrl := os.Getenv("TESLA_BASE_URL")
+	carId := os.Getenv("MY_CAR_ID")
+
+	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
+
+	fmt.Println(url)
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", baseUrl+"/vehicles/{id}/vehicle_data", nil)
+	getReq, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		http.Error(writer, "Failed to create get vehicles request", http.StatusInternalServerError)
 	}
 
-	req.Header = http.Header{
+	getReq.Header = http.Header{
 		"Content-Type":  {"application/json"},
 		"Authorization": {"Bearer " + tokenStore[state].AccessToken},
 	}
 
-	res, err := client.Do(req)
+	res, err := client.Do(getReq)
 	if err != nil {
 		http.Error(writer, "Could not get vehicles", http.StatusInternalServerError)
 	}
@@ -51,23 +72,28 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	}
 
 	fmt.Println("Response Status: ", res.Status)
-	fmt.Println("Response: ", string(body))
+	//	fmt.Println("Response: ", string(body))
 
-	var prettyJSON bytes.Buffer
-	error := json.Indent(&prettyJSON, body, "", "\t")
-	if error != nil {
-		log.Println("JSON parse error: ", error)
-		return
+	//var prettyJSON bytes.Buffer
+	//error := json.Indent(&prettyJSON, body, "", "\t")
+	//if error != nil {
+	//	log.Println("JSON parse error: ", error)
+	//	return
+	//}
+
+	//log.Println("Response", string(prettyJSON.Bytes()))
+
+	var returnBody map[string]interface{}
+
+	err = json.Unmarshal(body, &returnBody)
+	if err != nil {
+		http.Error(writer, "Could not unmarshal response body", http.StatusInternalServerError)
 	}
+	// this is erroring fix
 
-	log.Println("Response", string(prettyJSON.Bytes()))
+	response := returnBody["response"].(map[string]interface{})
+	test := response["state"].(string)
 
-	//	command := common.Request{
-	//		AuthToken: tokenStore[state].AccessToken,
-	//		Vin:       "5YJ3E1EA8MF854070",
-	//		Command:   "honk",
-	//	}
-	//
-	//	common.HandleCommand(command)
+	fmt.Println(test)
 
 }
