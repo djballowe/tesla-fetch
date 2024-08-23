@@ -17,15 +17,9 @@ func main() {
 	}
 
 	// Auth
-<<<<<<< Updated upstream
-	http.HandleFunc("/auth", getTeslaAuth.GetTeslaAuth)
-	http.HandleFunc("/callback", getTeslaAuth.AuthCallBack)
-	http.Handle("/.well-known/", http.StripPrefix("/.well-known/", http.FileServer(http.Dir("./.well-known"))))
-=======
 	http.HandleFunc("/auth", common.GetTeslaAuth)
 	http.HandleFunc("/callback", common.AuthCallBack)
 	http.HandleFunc("/honk", getdata.GetChargeState)
->>>>>>> Stashed changes
 
 	// Data
 	http.HandleFunc("/car", getdata.GetCarStatus)

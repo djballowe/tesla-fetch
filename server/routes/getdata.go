@@ -62,12 +62,12 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	log.Println("Response", string(prettyJSON.Bytes()))
 
-	command := common.Request{
-		AuthToken: tokenStore[state].AccessToken,
-		Vin:       "5YJ3E1EA8MF854070",
-		Command:   "honk",
-	}
-
-	common.HandleCommand(command)
+	//	command := common.Request{
+	//		AuthToken: tokenStore[state].AccessToken,
+	//		Vin:       "5YJ3E1EA8MF854070",
+	//		Command:   "honk",
+	//	}
+	//
+	//	common.HandleCommand(command)
 
 }
