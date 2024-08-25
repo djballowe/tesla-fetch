@@ -1,4 +1,4 @@
-package getdata
+package commands 
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	getTeslaAuth "tesla-app/server/common"
 )
 
-func GetChargeState(writer http.ResponseWriter, req *http.Request) {
+func Honk(writer http.ResponseWriter, req *http.Request) {
 	if req.Method != "GET" {
 		http.Error(writer, "404 not found", http.StatusNotFound)
 	}
@@ -17,7 +17,7 @@ func GetChargeState(writer http.ResponseWriter, req *http.Request) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", baseUrl+"/vehicles/1493089035103228/command/honk_horn", nil)
+	req, err := http.NewRequest("POST", baseUrl+"/vehicles/{id}/command/honk_horn", nil)
 	if err != nil {
 		http.Error(writer, "Failed to create honk horn command", http.StatusInternalServerError)
 	}
@@ -40,3 +40,4 @@ func GetChargeState(writer http.ResponseWriter, req *http.Request) {
 	fmt.Println("Response Status: ", res.Status)
 	fmt.Println("Response: ", string(body))
 }
+

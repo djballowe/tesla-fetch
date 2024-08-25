@@ -7,6 +7,7 @@ import (
 
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
+//	"github.com/teslamotors/vehicle-command/pkg/vehicle"
 )
 
 type Request struct {
@@ -20,13 +21,9 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func HandleCommand(req Request) {
+func HandleCommand(req Request) Response {
 	if req.Vin == "" {
-		fmt.Println("No vehicle VIN found")
-		//		return Response{
-		//			Success: false,
-		//			Message: "No vehicle VIN found",
-		//		}
+		return handleReturn("No vehicle VIN found", false)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -34,25 +31,19 @@ func HandleCommand(req Request) {
 
 	privateKey, err := getPrivateKey()
 	if err != nil {
-		fmt.Println(err.Error())
-		//		return Response{
-		//			Success: false,
-		//			Message: "Could not load private key",
-		//		}
+		return handleReturn(err.Error(), false)
 	}
 
 	userAgent := ""
 
 	account, err := account.New(string(req.AuthToken), userAgent)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return handleReturn(err.Error(), false)
 	}
 
 	car, err := account.GetVehicle(ctx, req.Vin, privateKey, nil)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return handleReturn(err.Error(), false)
 	}
 
 	fmt.Printf("VIN: %s\n", car.VIN())
@@ -60,25 +51,27 @@ func HandleCommand(req Request) {
 
 	err = car.Connect(ctx)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
-		//		return Response{
-		//			Success: false,
-		//			Message:"Could not connect to car",
-		//		}
+		return handleReturn(err.Error(), false)
 	}
 
 	err = car.StartSession(ctx, nil)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return handleReturn(err.Error(), false)
 	}
 
 	err = car.HonkHorn(ctx)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return handleReturn(err.Error(), false)
 	}
+
+	//	err = handleIssueCommand(ctx, *car, req.Command)
+	if err != nil {
+		return handleReturn(err.Error(), false)
+	}
+
+	success := fmt.Sprintf("Vehicle VIN: %s, command %s issued successfully", car.VIN(), req.Command)
+
+	return handleReturn(success, true)
 
 }
 
@@ -90,3 +83,14 @@ func getPrivateKey() (protocol.ECDHPrivateKey, error) {
 
 	return privateKey, nil
 }
+
+func handleReturn(err string, status bool) Response {
+	return Response{
+		Success: status,
+		Message: err,
+	}
+}
+
+//func handleIssueCommand(ctx context.Context, vehicle vehicle.Vehicle, action string) error {
+//	return nil
+//}

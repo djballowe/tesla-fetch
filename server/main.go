@@ -17,18 +17,12 @@ func main() {
 	}
 
 	// Auth
-<<<<<<< Updated upstream
-	http.HandleFunc("/auth", getTeslaAuth.GetTeslaAuth)
-	http.HandleFunc("/callback", getTeslaAuth.AuthCallBack)
-	http.Handle("/.well-known/", http.StripPrefix("/.well-known/", http.FileServer(http.Dir("./.well-known"))))
-=======
 	http.HandleFunc("/auth", common.GetTeslaAuth)
 	http.HandleFunc("/callback", common.AuthCallBack)
-	http.HandleFunc("/honk", getdata.GetChargeState)
->>>>>>> Stashed changes
+	http.HandleFunc("/honk", commands.Honk)
 
 	// Data
-	http.HandleFunc("/car", getdata.GetCarStatus)
+	http.HandleFunc("/data", getdata.GetCarStatus)
 
 	fmt.Println("Starting server on port: 8080")
 	err := http.ListenAndServe(":8080", nil)
