@@ -49,13 +49,13 @@ type VehicleResponse struct {
 			ChargeLimitSocMax              int     `json:"charge_limit_soc_max"`
 			ChargeLimitSocMin              int     `json:"charge_limit_soc_min"`
 			ChargeLimitSocStd              int     `json:"charge_limit_soc_std"`
-			ChargeMilesAddedIdeal          int     `json:"charge_miles_added_ideal"`
-			ChargeMilesAddedRated          int     `json:"charge_miles_added_rated"`
+			ChargeMilesAddedIdeal          float64 `json:"charge_miles_added_ideal"`
+			ChargeMilesAddedRated          float64 `json:"charge_miles_added_rated"`
 			ChargePortColdWeatherMode      bool    `json:"charge_port_cold_weather_mode"`
 			ChargePortColor                string  `json:"charge_port_color"`
 			ChargePortDoorOpen             bool    `json:"charge_port_door_open"`
 			ChargePortLatch                string  `json:"charge_port_latch"`
-			ChargeRate                     int     `json:"charge_rate"`
+			ChargeRate                     float64 `json:"charge_rate"`
 			ChargerActualCurrent           int     `json:"charger_actual_current"`
 			ChargerPhases                  any     `json:"charger_phases"`
 			ChargerPilotCurrent            int     `json:"charger_pilot_current"`
@@ -85,7 +85,7 @@ type VehicleResponse struct {
 			ScheduledDepartureTime         int     `json:"scheduled_departure_time"`
 			ScheduledDepartureTimeMinutes  int     `json:"scheduled_departure_time_minutes"`
 			SuperchargerSessionTripPlanner bool    `json:"supercharger_session_trip_planner"`
-			TimeToFullCharge               int     `json:"time_to_full_charge"`
+			TimeToFullCharge               float64 `json:"time_to_full_charge"`
 			Timestamp                      int64   `json:"timestamp"`
 			TripCharging                   bool    `json:"trip_charging"`
 			UsableBatteryLevel             int     `json:"usable_battery_level"`
@@ -104,7 +104,7 @@ type VehicleResponse struct {
 			ClimateKeeperMode                      string  `json:"climate_keeper_mode"`
 			CopActivationTemperature               string  `json:"cop_activation_temperature"`
 			DefrostMode                            int     `json:"defrost_mode"`
-			DriverTempSetting                      int     `json:"driver_temp_setting"`
+			DriverTempSetting                      float64 `json:"driver_temp_setting"`
 			FanStatus                              int     `json:"fan_status"`
 			HvacAutoRequest                        string  `json:"hvac_auto_request"`
 			InsideTemp                             float64 `json:"inside_temp"`
@@ -114,10 +114,10 @@ type VehicleResponse struct {
 			IsPreconditioning                      bool    `json:"is_preconditioning"`
 			IsRearDefrosterOn                      bool    `json:"is_rear_defroster_on"`
 			LeftTempDirection                      int     `json:"left_temp_direction"`
-			MaxAvailTemp                           int     `json:"max_avail_temp"`
-			MinAvailTemp                           int     `json:"min_avail_temp"`
+			MaxAvailTemp                           float64 `json:"max_avail_temp"`
+			MinAvailTemp                           float64 `json:"min_avail_temp"`
 			OutsideTemp                            float64 `json:"outside_temp"`
-			PassengerTempSetting                   int     `json:"passenger_temp_setting"`
+			PassengerTempSetting                   float64 `json:"passenger_temp_setting"`
 			RemoteHeaterControlEnabled             bool    `json:"remote_heater_control_enabled"`
 			RightTempDirection                     int     `json:"right_temp_direction"`
 			SeatHeaterLeft                         int     `json:"seat_heater_left"`
@@ -268,11 +268,11 @@ type VehicleResponse struct {
 				Version             string `json:"version"`
 			} `json:"software_update"`
 			SpeedLimitMode struct {
-				Active          bool `json:"active"`
-				CurrentLimitMph int  `json:"current_limit_mph"`
-				MaxLimitMph     int  `json:"max_limit_mph"`
-				MinLimitMph     int  `json:"min_limit_mph"`
-				PinCodeSet      bool `json:"pin_code_set"`
+				Active          bool    `json:"active"`
+				CurrentLimitMph float32 `json:"current_limit_mph"`
+				MaxLimitMph     float32 `json:"max_limit_mph"`
+				MinLimitMph     float32 `json:"min_limit_mph"`
+				PinCodeSet      bool    `json:"pin_code_set"`
 			} `json:"speed_limit_mode"`
 			SummonStandbyModeEnabled   bool    `json:"summon_standby_mode_enabled"`
 			Timestamp                  int64   `json:"timestamp"`
@@ -280,14 +280,14 @@ type VehicleResponse struct {
 			TpmsHardWarningFr          bool    `json:"tpms_hard_warning_fr"`
 			TpmsHardWarningRl          bool    `json:"tpms_hard_warning_rl"`
 			TpmsHardWarningRr          bool    `json:"tpms_hard_warning_rr"`
-			TpmsLastSeenPressureTimeFl int     `json:"tpms_last_seen_pressure_time_fl"`
-			TpmsLastSeenPressureTimeFr int     `json:"tpms_last_seen_pressure_time_fr"`
-			TpmsLastSeenPressureTimeRl int     `json:"tpms_last_seen_pressure_time_rl"`
-			TpmsLastSeenPressureTimeRr int     `json:"tpms_last_seen_pressure_time_rr"`
+			TpmsLastSeenPressureTimeFl float64 `json:"tpms_last_seen_pressure_time_fl"`
+			TpmsLastSeenPressureTimeFr float64 `json:"tpms_last_seen_pressure_time_fr"`
+			TpmsLastSeenPressureTimeRl float64 `json:"tpms_last_seen_pressure_time_rl"`
+			TpmsLastSeenPressureTimeRr float64 `json:"tpms_last_seen_pressure_time_rr"`
 			TpmsPressureFl             float64 `json:"tpms_pressure_fl"`
 			TpmsPressureFr             float64 `json:"tpms_pressure_fr"`
 			TpmsPressureRl             float64 `json:"tpms_pressure_rl"`
-			TpmsPressureRr             int     `json:"tpms_pressure_rr"`
+			TpmsPressureRr             float64 `json:"tpms_pressure_rr"`
 			TpmsRcpFrontValue          float64 `json:"tpms_rcp_front_value"`
 			TpmsRcpRearValue           float64 `json:"tpms_rcp_rear_value"`
 			TpmsSoftWarningFl          bool    `json:"tpms_soft_warning_fl"`
@@ -297,7 +297,7 @@ type VehicleResponse struct {
 			ValetMode                  bool    `json:"valet_mode"`
 			ValetPinNeeded             bool    `json:"valet_pin_needed"`
 			VehicleName                string  `json:"vehicle_name"`
-			VehicleSelfTestProgress    int     `json:"vehicle_self_test_progress"`
+			VehicleSelfTestProgress    float64 `json:"vehicle_self_test_progress"`
 			VehicleSelfTestRequested   bool    `json:"vehicle_self_test_requested"`
 			WebcamAvailable            bool    `json:"webcam_available"`
 		} `json:"vehicle_state"`
@@ -305,28 +305,31 @@ type VehicleResponse struct {
 }
 
 type ApiResponse struct {
-	State               string `json:"state"`
-	BatteryLevel        int    `json:"battery_level"`
-	ChargeRate          int    `json:"charge_rate"`
-	ChargingState       string `json:"chargin_state"`
-	MinutesToFullCharge int    `json:"minutes_to_full_charge"`
-	InsideTemp          int    `json:"inside_temp"`
-	IsClimateOn         bool   `json:"is_climate_on"`
-	IsPreconditioning   bool   `json:"is_preconditioning"`
-	OutsideTemp         int    `json:"outside_temp"`
-	Locked              bool   `json:"locked"`
-	Odometer            int    `json:"odometer"`
-	Color               string `json:"exterior_color"`
-	VehicleName         string `json:"vehicle_name"`
+	State               string  `json:"state"`
+	BatteryLevel        int     `json:"battery_level"`
+	ChargeRate          float64 `json:"charge_rate"`
+	ChargingState       string  `json:"chargin_state"`
+	MinutesToFullCharge int     `json:"minutes_to_full_charge"`
+	TimeToFullCharge    float64 `json:"time_to_full_charge"`
+	InsideTemp          int     `json:"inside_temp"`
+	IsClimateOn         bool    `json:"is_climate_on"`
+	IsPreconditioning   bool    `json:"is_preconditioning"`
+	OutsideTemp         int     `json:"outside_temp"`
+	Locked              bool    `json:"locked"`
+	Odometer            int     `json:"odometer"`
+	Color               string  `json:"exterior_color"`
+	VehicleName         string  `json:"vehicle_name"`
 }
 
 func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/car" {
 		http.Error(writer, "404 not found", http.StatusNotFound)
+		return
 	}
 
 	if req.Method != "GET" {
 		http.Error(writer, "This method is not supported", http.StatusNotFound)
+		return
 	}
 	tokenStore, state := common.GetTokenStore()
 	baseUrl := os.Getenv("TESLA_BASE_URL")
@@ -340,6 +343,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	vehicleDataRequest, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		http.Error(writer, "Failed to create get vehicles request", http.StatusInternalServerError)
+		return
 	}
 
 	vehicleDataRequest.Header = http.Header{
@@ -350,12 +354,14 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	res, err := client.Do(vehicleDataRequest)
 	if err != nil {
 		http.Error(writer, "Could not get vehicles", http.StatusInternalServerError)
+		return
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
 	fmt.Println("Response Status: ", res.Status)
@@ -378,6 +384,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
 		http.Error(writer, "Could not unmarshal response body", http.StatusInternalServerError)
+		return
 	}
 
 	returnVal := ApiResponse{
@@ -386,6 +393,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 		ChargeRate:          responseBody.Response.ChargeState.ChargeRate,
 		ChargingState:       responseBody.Response.ChargeState.ChargingState,
 		MinutesToFullCharge: responseBody.Response.ChargeState.MinutesToFullCharge,
+		TimeToFullCharge:    responseBody.Response.ChargeState.TimeToFullCharge,
 		InsideTemp:          int(responseBody.Response.ClimateState.InsideTemp),
 		OutsideTemp:         int(responseBody.Response.ClimateState.OutsideTemp),
 		IsClimateOn:         responseBody.Response.ClimateState.IsClimateOn,
@@ -399,6 +407,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	jsonResponse, err := json.Marshal(returnVal)
 	if err != nil {
 		http.Error(writer, "Could not marshal response body", http.StatusInternalServerError)
+		return
 	}
 
 	fmt.Println(returnVal)
