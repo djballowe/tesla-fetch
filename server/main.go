@@ -19,10 +19,10 @@ func main() {
 	// Auth
 	http.HandleFunc("/auth", common.GetTeslaAuth)
 	http.HandleFunc("/callback", common.AuthCallBack)
-	http.HandleFunc("/honk", getdata.GetChargeState)
+	http.HandleFunc("/honk", commands.Honk)
 
 	// Data
-	http.HandleFunc("/car", getdata.GetCarStatus)
+	http.HandleFunc("/data", getdata.GetCarStatus)
 
 	fmt.Println("Starting server on port: 8080")
 	err := http.ListenAndServe(":8080", nil)

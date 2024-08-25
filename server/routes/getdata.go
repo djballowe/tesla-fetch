@@ -1,11 +1,9 @@
 package getdata
 
 import (
-	//	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	//	"log"
 	"net/http"
 	"os"
 	"tesla-app/server/common"
@@ -322,7 +320,7 @@ type ApiResponse struct {
 }
 
 func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
-	if req.URL.Path != "/car" {
+	if req.URL.Path != "/data" {
 		http.Error(writer, "404 not found", http.StatusNotFound)
 		return
 	}
@@ -364,20 +362,10 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("Response Status: ", res.Status)
-
-	//	fmt.Println("Response: ", string(body))
-
-	//var prettyJSON bytes.Buffer
-	//error := json.Indent(&prettyJSON, body, "", "\t")
-	//if error != nil {
-	//	log.Println("JSON parse error: ", error)
-	//	return
-	//}
-
-	//log.Println("Response", string(prettyJSON.Bytes()))
-
-	// before you do this make sure the car is awake
+	if res.Status != "200 OK" {
+		http.Error(writer, "Could not fetch vehicle data", http.StatusInternalServerError)
+		return
+	}
 
 	var responseBody VehicleResponse
 
@@ -409,8 +397,6 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 		http.Error(writer, "Could not marshal response body", http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(returnVal)
 
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
