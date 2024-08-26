@@ -335,8 +335,6 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 
-	fmt.Println(url)
-
 	client := &http.Client{}
 	vehicleDataRequest, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -362,7 +360,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if res.Status != "200 OK" {
+	if res.StatusCode != 200 {
 		http.Error(writer, "Could not fetch vehicle data", http.StatusInternalServerError)
 		return
 	}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
-//	"github.com/teslamotors/vehicle-command/pkg/vehicle"
+	// "github.com/teslamotors/vehicle-command/pkg/vehicle"
 )
 
 type Request struct {
@@ -65,9 +65,9 @@ func HandleCommand(req Request) Response {
 	}
 
 	//	err = handleIssueCommand(ctx, *car, req.Command)
-	if err != nil {
-		return handleReturn(err.Error(), false)
-	}
+	//	if err != nil {
+	//		return handleReturn(err.Error(), false)
+	//	}
 
 	success := fmt.Sprintf("Vehicle VIN: %s, command %s issued successfully", car.VIN(), req.Command)
 
