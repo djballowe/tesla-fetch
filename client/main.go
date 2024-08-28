@@ -13,6 +13,11 @@ type DataResponse struct {
 	StatusCode int
 }
 
+type AuthResponse struct {
+	Body       string
+	StatusCode int
+}
+
 type Routes struct {
 	Data string
 	Honk string
@@ -33,11 +38,16 @@ func main() {
 		return
 	}
 
-	fmt.Println("Response: ", carDataResponse.Body, carDataResponse.StatusCode)
-
 	if carDataResponse.StatusCode == 401 {
-		callAuth()
+		authResponse, error := callAuth()
+		fmt.Println("auth response", authResponse.StatusCode)
+		if error != nil || authResponse.StatusCode != 200 {
+			fmt.Println(error.Error())
+			return
+		}
+
 		carDataResponse, error = callGetVehicleData()
+		fmt.Println("second try response: ", carDataResponse.Body)
 		if error != nil {
 			fmt.Println(error.Error())
 			return
@@ -48,11 +58,11 @@ func main() {
 }
 
 func callGetVehicleData() (DataResponse, error) {
-	response := &DataResponse{}
+	dataResponse := &DataResponse{}
 
 	req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/data", nil)
 	if err != nil {
-		return *response, err
+		return *dataResponse, err
 	}
 
 	req.Header.Add("Accept", "aplication/json")
@@ -61,20 +71,43 @@ func callGetVehicleData() (DataResponse, error) {
 
 	resp, err := client.Do(req)
 	if resp == nil || err != nil {
-		return *response, err
+		return *dataResponse, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return *response, err
+		return *dataResponse, err
 	}
 
-	response.Body = string(body)
-	response.StatusCode = resp.StatusCode
+	dataResponse.Body = string(body)
+	dataResponse.StatusCode = resp.StatusCode
 
-	return *response, nil
+	return *dataResponse, nil
 }
 
-func callAuth() {
-	req, err := http.NewRequest()
+func callAuth() (AuthResponse, error) {
+	// this needs to redirect the user to login screen
+	authResponse := &AuthResponse{}
+
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/auth", nil)
+	if err != nil {
+		return *authResponse, err
+	}
+
+	client := http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return *authResponse, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return *authResponse, err
+	}
+
+	authResponse.Body = string(body)
+	authResponse.StatusCode = resp.StatusCode
+
+	return *authResponse, nil
 }

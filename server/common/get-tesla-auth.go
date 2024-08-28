@@ -116,6 +116,7 @@ func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
 	storeMutex.Unlock()
 
 	fmt.Fprintf(writer, "Auth successful token stored")
+	writer.WriteHeader(http.StatusOK)
 }
 
 func exchangeCodeForToken(code string) (*Token, error) {
