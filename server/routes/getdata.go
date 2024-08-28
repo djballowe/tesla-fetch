@@ -355,13 +355,14 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
+	fmt.Println(res.Status)
 	if err != nil {
 		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	if res.StatusCode != 200 {
-		http.Error(writer, "Could not fetch vehicle data", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not get vehicle data: %s", res.Status), res.StatusCode)
 		return
 	}
 

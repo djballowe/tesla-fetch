@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,7 +9,8 @@ import (
 const BASE_URL = "localhost:8080"
 
 type DataResponse struct {
-	Response string
+	Body       string
+	StatusCode int
 }
 
 type Routes struct {
@@ -26,9 +26,33 @@ var routes = Routes{
 }
 
 func main() {
+
+	carDataResponse, error := callGetVehicleData()
+	if error != nil {
+		fmt.Println(error.Error())
+		return
+	}
+
+	fmt.Println("Response: ", carDataResponse.Body, carDataResponse.StatusCode)
+
+	if carDataResponse.StatusCode == 401 {
+		callAuth()
+		carDataResponse, error = callGetVehicleData()
+		if error != nil {
+			fmt.Println(error.Error())
+			return
+		}
+	}
+
+	return
+}
+
+func callGetVehicleData() (DataResponse, error) {
+	response := &DataResponse{}
+
 	req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/data", nil)
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
+		return *response, err
 	}
 
 	req.Header.Add("Accept", "aplication/json")
@@ -37,20 +61,20 @@ func main() {
 
 	resp, err := client.Do(req)
 	if resp == nil || err != nil {
-		fmt.Println(err.Error())
-		return
+		return *response, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
-		return
+		return *response, err
 	}
 
-	responseBody := &DataResponse{}
+	response.Body = string(body)
+	response.StatusCode = resp.StatusCode
 
-	json.Unmarshal(body, responseBody)
+	return *response, nil
+}
 
-	fmt.Println(responseBody)
-	return
+func callAuth() {
+	req, err := http.NewRequest()
 }
