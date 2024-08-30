@@ -81,7 +81,8 @@ func GetTeslaAuth(writer http.ResponseWriter, req *http.Request) {
 
 	fmt.Println("State stored redirecting...")
 
-	http.Redirect(writer, req, authUrl, http.StatusFound)
+	writer.Header().Set("Location", authUrl)
+	writer.WriteHeader(http.StatusFound)
 }
 
 func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
