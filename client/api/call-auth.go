@@ -15,6 +15,8 @@ type AuthResponse struct {
 func CallAuth() (AuthResponse, error) {
 	authResponse := &AuthResponse{}
 
+	notify := make(chan bool, 1)
+
 	req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/auth", nil)
 	if err != nil {
 		return *authResponse, err
@@ -32,10 +34,26 @@ func CallAuth() (AuthResponse, error) {
 	}
 
 	redirectUrl := resp.Header.Get("Location")
+	// app needs to somehow wait for the user to hit the callback route
 	openBrowser(redirectUrl)
-	fmt.Println("redirect url: ", redirectUrl)
+	buildNotificationServer(notify)
+	<-notify
 
 	return *authResponse, nil
+}
+
+func buildNotificationServer(notify chan bool) {
+	http.HandleFunc("/notify-client", func(writer http.ResponseWriter, resp *http.Request) {
+		notify <- true
+	})
+	go func() {
+		err := http.ListenAndServe(":3000", nil)
+		if err != nil {
+			fmt.Println("Error starting notify server")
+		}
+	}()
+
+	return
 }
 
 func openBrowser(url string) {
