@@ -8,7 +8,6 @@ import (
 )
 
 type AuthResponse struct {
-	Body       string
 	StatusCode int
 }
 
@@ -34,16 +33,21 @@ func CallAuth() (AuthResponse, error) {
 	}
 
 	redirectUrl := resp.Header.Get("Location")
-	// app needs to somehow wait for the user to hit the callback route
 	openBrowser(redirectUrl)
+
+	// app waits for notification from callback route
 	buildNotificationServer(notify)
 	<-notify
 
-	return *authResponse, nil
+	fmt.Println("notify passed")
+
+	return AuthResponse{
+		StatusCode: 200,
+	}, nil
 }
 
 func buildNotificationServer(notify chan bool) {
-	http.HandleFunc("/notify-client", func(writer http.ResponseWriter, resp *http.Request) {
+	http.HandleFunc("/notify", func(writer http.ResponseWriter, resp *http.Request) {
 		notify <- true
 	})
 	go func() {

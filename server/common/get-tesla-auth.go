@@ -88,6 +88,7 @@ func GetTeslaAuth(writer http.ResponseWriter, req *http.Request) {
 func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
 	code := req.URL.Query().Get("code")
 	state := req.URL.Query().Get("state")
+	authStatus := false
 	if code == "" || state == "" {
 		http.Error(writer, "Invalid request in auth callback", http.StatusBadRequest)
 		return
@@ -116,7 +117,16 @@ func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
 	tokenStore[state] = token
 	storeMutex.Unlock()
 
-	fmt.Fprintf(writer, "Auth successful token stored")
+	fmt.Fprintf(writer, "Auth successful token stored\n")
+	authStatus = true
+
+	notifyClientUrl := fmt.Sprintf("http://localhost:3000/notify?auth_status=%t", authStatus)
+
+	_, err = http.Post(notifyClientUrl, "application/x-www-form-urlencoded", nil)
+	if err != nil {
+		http.Error(writer, fmt.Sprintf("Failed to update the client of auth status: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
 }
 
 func exchangeCodeForToken(code string) (*Token, error) {
