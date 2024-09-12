@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -32,6 +33,8 @@ func CallGetVehicleData() (DataResponse, error) {
 			Body:       "Error",
 		}, err
 	}
+
+	fmt.Println("car data")
 
 	if resp.StatusCode == 408 {
 		return DataResponse{
