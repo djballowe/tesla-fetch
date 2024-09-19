@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"tesla-app/client/api"
+	"tesla-app/client/draw-status"
 )
 
 func main() {
@@ -12,8 +13,9 @@ func main() {
 		return
 	}
 
+	fmt.Println(carDataResponse.StatusCode)
+
 	if carDataResponse.StatusCode == 401 {
-		fmt.Println("This shouldnt fire")
 		authResponse, error := api.CallAuth()
 		if error != nil || authResponse.StatusCode != 200 {
 			fmt.Println(error.Error())
@@ -28,9 +30,11 @@ func main() {
 	}
 
 	if carDataResponse.StatusCode != 200 {
-		fmt.Printf("Something went wrong: %s\n", carDataResponse.Body)
+		fmt.Printf("Something went wrong: %d\n", carDataResponse.StatusCode)
 		return
 	}
+
+	drawlogo.DrawStatus(carDataResponse.Body)
 
 	fmt.Println(carDataResponse.Body)
 

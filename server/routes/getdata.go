@@ -333,6 +333,8 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
+	fmt.Println("Token: ", tokenStore[state].AccessToken)
+
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 
 	client := &http.Client{}
