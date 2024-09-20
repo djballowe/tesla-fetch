@@ -5,78 +5,38 @@ import (
 	"tesla-app/client/api"
 )
 
-type VehicleData struct {
-	State               string `json:"state"`
-	BatteryLevel        int    `json:"battery_level"`
-	ChargeRate          int    `json:"charge_rate"`
-	CharginState        string `json:"chargin_state"`
-	MinutesToFullCharge int    `json:"minutes_to_full_charge"`
-	TimeToFullCharge    int    `json:"time_to_full_charge"`
-	InsideTemp          int    `json:"inside_temp"`
-	IsClimateOn         bool   `json:"is_climate_on"`
-	IsPreconditioning   bool   `json:"is_preconditioning"`
-	OutsideTemp         int    `json:"outside_temp"`
-	Locked              bool   `json:"locked"`
-	Odometer            int    `json:"odometer"`
-	ExteriorColor       string `json:"exterior_color"`
-	VehicleName         string `json:"vehicle_name"`
-}
-
 func DrawStatus(vehicleData api.VehicleData) {
 
-	fmt.Println(vehicleData.VehicleName)
-
 	logo := []string{
-		"	                ⣀⣀⣀⣀⣠⣤⣤⣤⣤⣤⣤⣤⣀⣀⣀⣀					",
-		"	      ⢀⣀⣤⣤⣴⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣦⣤⣤⣀⡀			",
-		"	 ⣀⣤⣴⣶⣿⣿⣿⣿⣿⠿⠟⠛⠛⠛⠋⠉⣉⣉⠀⠀⠀⠀⠀⠀⠀⠀⠀⢈⣉⣉⠉⠙⠛⠛⠛⠿⠿⣿⣿⣿⣿⣿⣶⣤⣤⣀	",
-		"	⢻⣿⣿⠿⠛⠛⢉⣁⣤⣤⣴⣶⣶⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣶⣶⣤⣤⣤⣈⡉⠛⠛⠿⣿⣿⠏ 	",
-		"	 ⠁⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⡀⠀⠀⢠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣤⣄⠈⠀		",
-		"	  ⠙⠻⣿⣿⣿⣿⣿⣿⠿⠛⠛⠛⠛⠛⢻⣿⣿⣿⣿⣿⣦⣴⣿⣿⣿⣿⣿⡟⠛⠛⠛⠛⠛⠿⣿⣿⣿⣿⣿⣿⠟⠃⠀		",
-		"	    ⠈⠛⠿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⠿⠛⠁⠀⠀⠀		",
-		"	                 ⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                 ⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                  ⢿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                  ⢸⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                   ⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                   ⢹⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                   ⠘⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                    ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                    ⢹⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                    ⠘⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                     ⢿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                     ⢸⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                      ⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                      ⢿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
-		"	                      ⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀		",
+		"\033[38;5;88m",
+		"	████████╗███████╗███████╗██╗      █████╗",
+		"	╚══██╔══╝██╔════╝██╔════╝██║     ██╔══██╗",
+		"	   ██║   █████╗  ███████╗██║     ███████║",
+		"	   ██║   ██╔══╝  ╚════██║██║     ██╔══██║",
+		"	   ██║   ███████╗███████║███████╗██║  ██║",
+		"	   ╚═╝   ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝",
+		"\033[0m",
 	}
 
 	info := []string{
-		fmt.Sprintf("Name:		%s", vehicleData.VehicleName),
-		fmt.Sprintf("Color:	%s", vehicleData.ExteriorColor),
-		fmt.Sprintf("Miles:		%d", vehicleData.Odometer),
-		fmt.Sprintf("Charge:		%d", vehicleData.BatteryLevel),
-		fmt.Sprintf("Charge State:	%s", vehicleData.CharginState),
-		fmt.Sprintf("Charge Rate:	%d", vehicleData.ChargeRate),
-		fmt.Sprintf("Climate On:	%t", vehicleData.IsClimateOn),
-		fmt.Sprintf("Climate:		%d", vehicleData.InsideTemp),
-		fmt.Sprintf("Locked:		%t", vehicleData.Locked),
+		fmt.Sprintf("\t\033[1;31mName\033[0m: \033[1;37m%s\033[0m", vehicleData.VehicleName),
+		fmt.Sprintf("\t\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", vehicleData.ExteriorColor),
+		fmt.Sprintf("\t\033[1;31mMiles\033[0m: \033[1;37m%d\033[0m", vehicleData.Odometer),
+		fmt.Sprintf("\t\033[1;31mCharge\033[0m: \033[1;37m%d\033[0m", vehicleData.BatteryLevel),
+		fmt.Sprintf("\t\033[1;31mCharge State\033[0m: \033[1;37m%s\033[0m", vehicleData.CharginState),
+		fmt.Sprintf("\t\033[1;31mCharge Rate\033[0m: \033[1;37m%d\033[0m", vehicleData.ChargeRate),
+		fmt.Sprintf("\t\033[1;31mClimate On\033[0m: \033[1;37m%t\033[0m", vehicleData.IsClimateOn),
+		fmt.Sprintf("\t\033[1;31mClimate\033[0m: \033[1;37m%d\033[0m", vehicleData.InsideTemp),
+		fmt.Sprintf("\t\033[1;31mLocked\033[0m: \033[1;37m%t\033[0m", vehicleData.Locked),
 	}
 
-	logoSize := len(logo)
-	infoSize := len(info)
-
-	centerLogo := logoSize / 2
-	centerInfo := infoSize / 2
-	infoIdx := 0
-
-	for i, line := range logo {
+	for _, line := range logo {
 		fmt.Printf(line)
-		if i >= centerLogo-centerInfo && infoIdx < infoSize {
-			fmt.Printf(info[infoIdx])
-			infoIdx++
-		}
+		fmt.Printf("\n")
+	}
+
+	for _, info := range info {
+		fmt.Printf(info)
 		fmt.Printf("\n")
 	}
 }

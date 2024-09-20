@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -53,11 +54,9 @@ func CallGetVehicleData() (DataResponse, error) {
 		}, err
 	}
 
-	fmt.Println("car data")
-
-	if resp.StatusCode == 408 {
+	if resp.StatusCode != 200 {
 		return DataResponse{
-			StatusCode: 408,
+			StatusCode: resp.StatusCode,
 			Body:       vehicleData,
 		}, nil
 	}
@@ -75,7 +74,7 @@ func CallGetVehicleData() (DataResponse, error) {
 		return DataResponse{
 			StatusCode: 500,
 			Body:       vehicleData,
-		}, err
+		}, errors.New(fmt.Sprintf("Error parsing json: %s", err))
 	}
 
 	dataResponse.Body = vehicleData
