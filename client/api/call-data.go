@@ -23,6 +23,8 @@ type VehicleData struct {
 	Odometer            int    `json:"odometer"`
 	ExteriorColor       string `json:"exterior_color"`
 	VehicleName         string `json:"vehicle_name"`
+	CarType             string `json:"car_type"`
+	CarSpecialType      string `json:"car_special_type"`
 }
 
 type DataResponse struct {

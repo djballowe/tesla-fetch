@@ -6,20 +6,39 @@ import (
 )
 
 func DrawStatus(vehicleData api.VehicleData) {
+	carMap := map[string]string{
+		"models": "Model S",
+		"model3": "Model 3",
+		"modelx": "Model X",
+		"modely": "Model Y",
+	}
 
 	logo := []string{
-		"\033[38;5;88m",
-		"	████████╗███████╗███████╗██╗      █████╗",
-		"	╚══██╔══╝██╔════╝██╔════╝██║     ██╔══██╗",
-		"	   ██║   █████╗  ███████╗██║     ███████║",
-		"	   ██║   ██╔══╝  ╚════██║██║     ██╔══██║",
-		"	   ██║   ███████╗███████║███████╗██║  ██║",
-		"	   ╚═╝   ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝",
-		"\033[0m",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⢀⣀⣤⣤⣶⡶⠿⠟⠛⠛⠛⠛⠛⠛⠛⠛⠻⠿⢶⣶⣤⣤⣀⡀\t",
+		"\t⠘⢛⣫⣭⣴⣶⣾⣿⣿⣿⣦⠀⢀⣴⣿⣿⣿⣷⣶⣦⣭⣝⡛⠁\t",
+		"\t⠀⠀⠙⠿⡿⠛⠉⠉⠙⣿⣿⣷⣾⣿⣿⠉⠉⠉⠛⢿⠿⠋⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\t",
+		"\t⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\t",
+	}
+
+	header := fmt.Sprintf("\033[1;37mDavids %s\033[0m", carMap[vehicleData.CarType])
+	headerLine := ""
+
+	for i := 0; i < len(header); i++ {
+		headerLine += "-"
 	}
 
 	info := []string{
-		fmt.Sprintf("\t\033[1;31mName\033[0m: \033[1;37m%s\033[0m", vehicleData.VehicleName),
+		fmt.Sprintf("%s", header),
+		fmt.Sprintf("%s", headerLine),
+		fmt.Sprintf("\033[1;31mName\033[0m: \033[1;37m%s\033[0m", vehicleData.VehicleName),
 		fmt.Sprintf("\t\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", vehicleData.ExteriorColor),
 		fmt.Sprintf("\t\033[1;31mMiles\033[0m: \033[1;37m%d\033[0m", vehicleData.Odometer),
 		fmt.Sprintf("\t\033[1;31mCharge\033[0m: \033[1;37m%d\033[0m", vehicleData.BatteryLevel),
@@ -30,13 +49,20 @@ func DrawStatus(vehicleData api.VehicleData) {
 		fmt.Sprintf("\t\033[1;31mLocked\033[0m: \033[1;37m%t\033[0m", vehicleData.Locked),
 	}
 
-	for _, line := range logo {
-		fmt.Printf(line)
-		fmt.Printf("\n")
-	}
+	logoSize := len(logo)
+	infoSize := len(info)
 
-	for _, info := range info {
-		fmt.Printf(info)
+	centerLogo := logoSize / 2
+	centerInfo := infoSize / 2
+	infoIdx := 0
+
+	for i, line := range logo {
+		fmt.Printf("\033[1;31m%s\033[0m", line)
+		if i >= centerLogo-centerInfo && infoIdx < infoSize {
+			fmt.Printf(info[infoIdx])
+			infoIdx++
+		}
 		fmt.Printf("\n")
 	}
+	fmt.Printf("\n")
 }
