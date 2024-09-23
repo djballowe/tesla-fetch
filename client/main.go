@@ -34,9 +34,9 @@ func main() {
 		return
 	}
 
-	drawlogo.DrawStatus(carDataResponse.Body)
+	fmt.Println(carDataResponse.Body)
 
-	//	fmt.Println(carDataResponse.Body)
+	drawlogo.DrawStatus(carDataResponse.Body)
 
 	return
 }
