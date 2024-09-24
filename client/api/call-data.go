@@ -12,7 +12,7 @@ type VehicleData struct {
 	State               string `json:"state"`
 	BatteryLevel        int    `json:"battery_level"`
 	ChargeRate          int    `json:"charge_rate"`
-	CharginState        string `json:"chargin_state"`
+	ChargingState       string `json:"charging_state"`
 	MinutesToFullCharge int    `json:"minutes_to_full_charge"`
 	TimeToFullCharge    int    `json:"time_to_full_charge"`
 	InsideTemp          int    `json:"inside_temp"`
@@ -23,6 +23,8 @@ type VehicleData struct {
 	Odometer            int    `json:"odometer"`
 	ExteriorColor       string `json:"exterior_color"`
 	VehicleName         string `json:"vehicle_name"`
+	CarType             string `json:"car_type"`
+	CarSpecialType      string `json:"car_special_type"`
 }
 
 type DataResponse struct {

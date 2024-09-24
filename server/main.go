@@ -23,7 +23,7 @@ func main() {
 
 	// Data
 	http.HandleFunc("/data", getdata.GetCarStatus)
-
+	
 	fmt.Println("Starting server on port: 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err == nil {

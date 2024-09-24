@@ -39,8 +39,6 @@ func CallAuth() (AuthResponse, error) {
 	buildNotificationServer(notify)
 	<-notify
 
-	fmt.Println("notify passed")
-
 	return AuthResponse{
 		StatusCode: 200,
 	}, nil

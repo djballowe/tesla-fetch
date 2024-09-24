@@ -306,7 +306,7 @@ type ApiResponse struct {
 	State               string  `json:"state"`
 	BatteryLevel        int     `json:"battery_level"`
 	ChargeRate          float64 `json:"charge_rate"`
-	ChargingState       string  `json:"chargin_state"`
+	ChargingState       string  `json:"charging_state"`
 	MinutesToFullCharge int     `json:"minutes_to_full_charge"`
 	TimeToFullCharge    float64 `json:"time_to_full_charge"`
 	InsideTemp          int     `json:"inside_temp"`
@@ -317,6 +317,8 @@ type ApiResponse struct {
 	Odometer            int     `json:"odometer"`
 	Color               string  `json:"exterior_color"`
 	VehicleName         string  `json:"vehicle_name"`
+	CarType             string  `json:"car_type"`
+	CarSpecialType      string  `json:"car_special_type"`
 }
 
 func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
@@ -332,8 +334,6 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	tokenStore, state := common.GetTokenStore()
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
-
-	fmt.Println("Token: ", tokenStore[state].AccessToken)
 
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 
@@ -391,6 +391,8 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 		Odometer:            int(responseBody.Response.VehicleState.Odometer),
 		Color:               responseBody.Response.Color,
 		VehicleName:         responseBody.Response.VehicleState.VehicleName,
+		CarType:             responseBody.Response.VehicleConfig.CarType,
+		CarSpecialType:      responseBody.Response.VehicleConfig.CarSpecialType,
 	}
 
 	jsonResponse, err := json.Marshal(returnVal)
