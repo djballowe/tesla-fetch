@@ -306,7 +306,7 @@ type ApiResponse struct {
 	State               string  `json:"state"`
 	BatteryLevel        int     `json:"battery_level"`
 	ChargeRate          float64 `json:"charge_rate"`
-	ChargingState       string  `json:"chargin_state"`
+	ChargingState       string  `json:"charging_state"`
 	MinutesToFullCharge int     `json:"minutes_to_full_charge"`
 	TimeToFullCharge    float64 `json:"time_to_full_charge"`
 	InsideTemp          int     `json:"inside_temp"`

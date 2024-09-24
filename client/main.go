@@ -30,11 +30,13 @@ func main() {
 	}
 
 	if carDataResponse.StatusCode != 200 {
-		fmt.Printf("Something went wrong: %d\n", carDataResponse.StatusCode)
+		if carDataResponse.StatusCode == 408 {
+			fmt.Printf("Error gathering vehicle data: Status Code %d vehicle is asleep\n", carDataResponse.StatusCode)
+			return
+		}
+		fmt.Printf("Error gathering vehicle data: Status Code %d\n", carDataResponse.StatusCode)
 		return
 	}
-
-	fmt.Println(carDataResponse.Body)
 
 	drawlogo.DrawStatus(carDataResponse.Body)
 
