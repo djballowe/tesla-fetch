@@ -2,10 +2,10 @@ package drawlogo
 
 import (
 	"fmt"
-//	"tesla-app/client/api"
+	"tesla-app/client/api"
 )
 
-func DrawStatus() {
+func DrawStatus(vehicleData api.VehicleData) {
 	logo := []string{
 		"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀",
 		"⢀⣀⣤⣤⣶⡶⠿⠟⠛⠛⠛⠛⠛⠛⠛⠛⠻⠿⢶⣶⣤⣤⣀⡀",
@@ -21,53 +21,37 @@ func DrawStatus() {
 		"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ",
 	}
 
-	info := buildInfo()
+	info := buildInfo(vehicleData)
 
 	draw(logo, info)
 }
 
-func buildInfo() []string {
-	//	carMap := map[string]string{
-	//		"models": "Model S",
-	//		"model3": "Model 3",
-	//		"modelx": "Model X",
-	//		"modely": "Model Y",
-	//	}
+func buildInfo(vehicleData api.VehicleData) []string {
+	carMap := map[string]string{
+		"models": "Model S",
+		"model3": "Model 3",
+		"modelx": "Model X",
+		"modely": "Model Y",
+	}
 
-	//	header := fmt.Sprintf("\033[1;37m%s, %s\033[0m", vehicleData.VehicleName, carMap[vehicleData.CarType])
-	header := fmt.Sprintf("\033[1;37mTARS, Model 3\033[0m")
+	header := fmt.Sprintf("\033[1;37m%s, %s\033[0m", vehicleData.VehicleName, carMap[vehicleData.CarType])
 	headerLine := ""
 
 	for i := 0; i < len([]rune(header)); i++ {
 		headerLine += "-"
 	}
 
-	//	info := []string{
-	//		fmt.Sprintf("%s", header),
-	//		fmt.Sprintf("%s", headerLine),
-	//		fmt.Sprintf("\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", vehicleData.ExteriorColor),
-	//		fmt.Sprintf("\033[1;31mMiles\033[0m: \033[1;37m%d\033[0m", vehicleData.Odometer),
-	//		fmt.Sprintf("\033[1;31mCharge\033[0m: \033[1;37m%d\033[0m", vehicleData.BatteryLevel),
-	//		fmt.Sprintf("\033[1;31mCharge State\033[0m: \033[1;37m%s\033[0m", vehicleData.ChargingState),
-	//		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%d\033[0m", vehicleData.ChargeRate),
-	//		fmt.Sprintf("\033[1;31mClimate On\033[0m: \033[1;37m%t\033[0m", vehicleData.IsClimateOn),
-	//		fmt.Sprintf("\033[1;31mClimate\033[0m: \033[1;37m%d\033[0m", vehicleData.InsideTemp),
-	//		fmt.Sprintf("\033[1;31mLocked\033[0m: \033[1;37m%t\033[0m", vehicleData.Locked),
-	//	}
-
-	test := "test"
-
 	info := []string{
 		fmt.Sprintf("%s", header),
 		fmt.Sprintf("%s", headerLine),
-		fmt.Sprintf("\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", test),
-		fmt.Sprintf("\033[1;31mMiles\033[0m: \033[1;37m%s\033[0m", test),
-		fmt.Sprintf("\033[1;31mCharge\033[0m: \033[1;37m%s\033[0m", test),
-		fmt.Sprintf("\033[1;31mCharge State\033[0m: \033[1;37m%s\033[0m", test),
-		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%s\033[0m", test),
-		fmt.Sprintf("\033[1;31mClimate On\033[0m: \033[1;37m%s\033[0m", test),
-		fmt.Sprintf("\033[1;31mClimate\033[0m: \033[1;37m%s\033[0m", test),
-		fmt.Sprintf("\033[1;31mLocked\033[0m: \033[1;37m%s\033[0m", test),
+		fmt.Sprintf("\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", vehicleData.ExteriorColor),
+		fmt.Sprintf("\033[1;31mMiles\033[0m: \033[1;37m%d\033[0m", vehicleData.Odometer),
+		fmt.Sprintf("\033[1;31mCharge\033[0m: \033[1;37m%d\033[0m", vehicleData.BatteryLevel),
+		fmt.Sprintf("\033[1;31mCharge State\033[0m: \033[1;37m%s\033[0m", vehicleData.ChargingState),
+		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%d\033[0m", vehicleData.ChargeRate),
+		fmt.Sprintf("\033[1;31mClimate On\033[0m: \033[1;37m%t\033[0m", vehicleData.IsClimateOn),
+		fmt.Sprintf("\033[1;31mClimate\033[0m: \033[1;37m%d\033[0m", vehicleData.InsideTemp),
+		fmt.Sprintf("\033[1;31mLocked\033[0m: \033[1;37m%t\033[0m", vehicleData.Locked),
 	}
 
 	return info

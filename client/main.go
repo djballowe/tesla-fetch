@@ -1,68 +1,41 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	//	"tesla-app/client/api"
 	"sync"
+	"tesla-app/client/api"
 	"tesla-app/client/draw-status"
 	"time"
 )
 
 func main() {
-	//	carDataResponse, error := api.CallGetVehicleData()
-	//	if error != nil {
-	//		fmt.Println(error.Error())
-	//		return
-	//	}
-	//
-	//	fmt.Println(carDataResponse.StatusCode)
-	//
-	//	if carDataResponse.StatusCode == 401 {
-	//		authResponse, error := api.CallAuth()
-	//		if error != nil || authResponse.StatusCode != 200 {
-	//			fmt.Println(error.Error())
-	//			return
-	//		}
-	//
-	//		carDataResponse, error = api.CallGetVehicleData()
-	//		if error != nil {
-	//			fmt.Println(error.Error())
-	//			return
-	//		}
-	//	}
-	//
-	//	if carDataResponse.StatusCode != 200 {
-	//		if carDataResponse.StatusCode == 408 {
-	//			fmt.Printf("Error gathering vehicle data: Status Code %d vehicle is asleep\n", carDataResponse.StatusCode)
-	//			return
-	//		}
-	//		fmt.Printf("Error gathering vehicle data: Status Code %d\n", carDataResponse.StatusCode)
-	//		return
-	//	}
 
 	var group sync.WaitGroup
 	group.Add(2)
 
-	flag := make(chan struct{})
+	done := make(chan struct{})
+	vehicleDataChan := make(chan api.VehicleData)
 
-	go loadingSpinner(&group, flag)
-	go getVehicleData(&group, flag)
+	go loadingSpinner(&group, done)
+	go getVehicleData(&group, done, vehicleDataChan)
+	vehicleData := <-vehicleDataChan
 
 	group.Wait()
 
-	drawlogo.DrawStatus()
+	drawlogo.DrawStatus(vehicleData)
 
 	return
 }
 
-func loadingSpinner(group *sync.WaitGroup, flag chan struct{}) {
+func loadingSpinner(group *sync.WaitGroup, done chan struct{}) {
 	defer group.Done()
 	loadSpinner := [10]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	idx := 0
 
 	for {
 		select {
-		case <-flag:
+		case <-done:
 			fmt.Printf("\r%s", "                         ")
 			return
 
@@ -74,8 +47,33 @@ func loadingSpinner(group *sync.WaitGroup, flag chan struct{}) {
 	}
 }
 
-func getVehicleData(group *sync.WaitGroup, flag chan struct{}) {
+func getVehicleData(group *sync.WaitGroup, done chan struct{}, vehicleDataChan chan api.VehicleData) error {
 	defer group.Done()
+	carDataResponse, error := api.CallGetVehicleData()
+	if error != nil {
+		return error
+	}
 
-	close(flag)
+	if carDataResponse.StatusCode == 401 {
+		authResponse, error := api.CallAuth()
+		if error != nil || authResponse.StatusCode != 200 {
+			return error
+		}
+
+		carDataResponse, error = api.CallGetVehicleData()
+		if error != nil {
+			return error
+		}
+	}
+
+	if carDataResponse.StatusCode != 200 {
+		if carDataResponse.StatusCode == 408 {
+			return errors.New(fmt.Sprintf("Error gathering vehicle data: Status Code %d vehicle is asleep", carDataResponse.StatusCode))
+		}
+		return errors.New(fmt.Sprintf("Error gathing vehicle data: Status Code %d", carDataResponse.StatusCode))
+	}
+
+	vehicleDataChan <- carDataResponse.Body
+	close(done)
+	return nil
 }
