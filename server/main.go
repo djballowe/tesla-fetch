@@ -19,7 +19,6 @@ func main() {
 	// Auth
 	http.HandleFunc("/auth", common.GetTeslaAuth)
 	http.HandleFunc("/callback", common.AuthCallBack)
-	//	http.HandleFunc("/honk", commands.Honk)
 
 	// Data
 	http.HandleFunc("/data", getdata.GetCarStatus)

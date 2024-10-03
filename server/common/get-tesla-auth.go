@@ -117,7 +117,7 @@ func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
 	tokenStore[state] = token
 	storeMutex.Unlock()
 
-	fmt.Fprintf(writer, "Auth successful token stored\n")
+	fmt.Fprintf(writer, "Auth successful\n")
 	authStatus = true
 
 	notifyClientUrl := fmt.Sprintf("http://localhost:3000/notify?auth_status=%t", authStatus)
