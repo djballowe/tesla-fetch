@@ -90,7 +90,3 @@ func handleReturn(err string, status bool) Response {
 		Message: err,
 	}
 }
-
-//func handleIssueCommand(ctx context.Context, vehicle vehicle.Vehicle, action string) error {
-//	return nil
-//}

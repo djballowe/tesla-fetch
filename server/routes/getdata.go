@@ -1,4 +1,4 @@
-package getdata
+package routes 
 
 import (
 	"encoding/json"
