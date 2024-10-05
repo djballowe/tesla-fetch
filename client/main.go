@@ -80,13 +80,20 @@ func getVehicleData(group *sync.WaitGroup, done chan struct{}, dataChan chan res
 
 	if carDataResponse.StatusCode != 200 {
 		if carDataResponse.StatusCode == 408 {
-			error = errors.New(fmt.Sprintf("Error gathering vehicle data: status code %d vehicle is asleep", carDataResponse.StatusCode))
+			commandResp, err := api.CallIssueCommand("wake")
+			if err != nil {
+				dataChan <- result{err: error}
+			}
+
+			fmt.Println(commandResp.Body)
+			//			error = errors.New(fmt.Sprintf("Error gathering vehicle data: status code %d vehicle is asleep", carDataResponse.StatusCode))
+			//			dataChan <- result{err: error}
+			//			return
+		} else {
+			error = errors.New(fmt.Sprintf("Error gathing vehicle data: Status Code %d", carDataResponse.StatusCode))
 			dataChan <- result{err: error}
 			return
 		}
-		error = errors.New(fmt.Sprintf("Error gathing vehicle data: Status Code %d", carDataResponse.StatusCode))
-		dataChan <- result{err: error}
-		return
 	}
 
 	dataChan <- result{vehicleData: carDataResponse.Body, err: nil}

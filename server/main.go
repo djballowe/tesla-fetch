@@ -24,8 +24,8 @@ func main() {
 	http.HandleFunc("/data", routes.GetCarStatus)
 
 	// Command
-	http.HandleFunc("/command", )
-	
+	http.HandleFunc("/command", routes.IssueCommand)
+
 	fmt.Println("Starting server on port: 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err == nil {
