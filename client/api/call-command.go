@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,7 +15,6 @@ type IssueCommandResponse struct {
 	Body       CommandStatus
 	StatusCode int
 }
-
 
 func CallIssueCommand(command string) (IssueCommandResponse, error) {
 	commandApiResponse := &IssueCommandResponse{}

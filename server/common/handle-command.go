@@ -3,12 +3,10 @@ package common
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
 	"github.com/teslamotors/vehicle-command/pkg/vehicle"
-	// "github.com/teslamotors/vehicle-command/pkg/vehicle"
+	"time"
 )
 
 type CommandRequest struct {
@@ -73,7 +71,8 @@ func HandleCommand(req CommandRequest) CommandResponse {
 
 func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) error {
 	fmt.Println(command)
-	err := car.HonkHorn(ctx)
+	//	err := car.HonkHorn(ctx)
+	err := car.Wakeup(ctx)
 	if err != nil {
 		return err
 	}
