@@ -72,11 +72,20 @@ func HandleCommand(req CommandRequest) CommandResponse {
 func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) error {
 	fmt.Println(command)
 	//	err := car.HonkHorn(ctx)
+
+	poll := time.After(15 * time.Second)
 	err := car.Wakeup(ctx)
-	if err != nil {
-		return err
+
+	for {
+		select {
+		case <-poll:
+			return err
+
+		default:
+			err = car.Wakeup(ctx)
+			fmt.Println(err)
+		}
 	}
-	return nil
 }
 
 func getPrivateKey() (protocol.ECDHPrivateKey, error) {

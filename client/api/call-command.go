@@ -34,14 +34,15 @@ func CallIssueCommand(command string) (IssueCommandResponse, error) {
 		return handleCommandReturn(500, commandStatus, err)
 	}
 
-	if resp.StatusCode != 200 {
-		return handleCommandReturn(200, commandStatus, err)
-	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return handleCommandReturn(500, commandStatus, err)
 	}
+
+	if resp.StatusCode != 200 {
+		return handleCommandReturn(500, commandStatus, err)
+	}
+
 
 	err = json.Unmarshal(body, &commandStatus)
 	if err != nil {
