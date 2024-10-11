@@ -73,19 +73,23 @@ func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string
 	fmt.Println(command)
 	//	err := car.HonkHorn(ctx)
 
-	poll := time.After(15 * time.Second)
+	//poll := time.After(15 * time.Second)
 	err := car.Wakeup(ctx)
-
-	for {
-		select {
-		case <-poll:
-			return err
-
-		default:
-			err = car.Wakeup(ctx)
-			fmt.Println(err)
-		}
+	if err != nil {
+		return err
 	}
+	return nil
+
+	//for {
+	//	select {
+	//	case <-poll:
+	//		return err
+
+	//	default:
+	//		err = car.Wakeup(ctx)
+	//		fmt.Println(err)
+	//	}
+	//}
 }
 
 func getPrivateKey() (protocol.ECDHPrivateKey, error) {
