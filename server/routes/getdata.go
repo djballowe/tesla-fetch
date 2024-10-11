@@ -1,4 +1,4 @@
-package routes 
+package routes
 
 import (
 	"encoding/json"
@@ -389,7 +389,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 		IsPreconditioning:   responseBody.Response.ClimateState.IsPreconditioning,
 		Locked:              responseBody.Response.VehicleState.Locked,
 		Odometer:            int(responseBody.Response.VehicleState.Odometer),
-		Color:               responseBody.Response.Color,
+		Color:               responseBody.Response.VehicleConfig.ExteriorColor,
 		VehicleName:         responseBody.Response.VehicleState.VehicleName,
 		CarType:             responseBody.Response.VehicleConfig.CarType,
 		CarSpecialType:      responseBody.Response.VehicleConfig.CarSpecialType,

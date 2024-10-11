@@ -2,6 +2,7 @@ package drawlogo
 
 import (
 	"fmt"
+	"math"
 	"tesla-app/client/api"
 )
 
@@ -48,9 +49,10 @@ func buildInfo(vehicleData api.VehicleData) []string {
 		fmt.Sprintf("\033[1;31mMiles\033[0m: \033[1;37m%d\033[0m", vehicleData.Odometer),
 		fmt.Sprintf("\033[1;31mCharge\033[0m: \033[1;37m%d\033[0m", vehicleData.BatteryLevel),
 		fmt.Sprintf("\033[1;31mCharge State\033[0m: \033[1;37m%s\033[0m", vehicleData.ChargingState),
-		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%d\033[0m", vehicleData.ChargeRate),
+		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%f\033[0m", vehicleData.ChargeRate),
 		fmt.Sprintf("\033[1;31mClimate On\033[0m: \033[1;37m%t\033[0m", vehicleData.IsClimateOn),
-		fmt.Sprintf("\033[1;31mClimate\033[0m: \033[1;37m%d\033[0m", vehicleData.InsideTemp),
+		fmt.Sprintf("\033[1;31mClimate Inside\033[0m: \033[1;37m%d\033[0m", convertClimate(vehicleData.InsideTemp)),
+		fmt.Sprintf("\033[1;31mClimate Outside\033[0m: \033[1;37m%d\033[0m", convertClimate(vehicleData.OutsideTemp)),
 		fmt.Sprintf("\033[1;31mLocked\033[0m: \033[1;37m%t\033[0m", vehicleData.Locked),
 	}
 
@@ -94,4 +96,8 @@ func max(a int, b int) int {
 		return b
 	}
 	return a
+}
+
+func convertClimate(temp int) int {
+	return int(math.Round(float64(temp)*1.8 + 32))
 }
