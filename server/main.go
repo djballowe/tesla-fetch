@@ -21,8 +21,11 @@ func main() {
 	http.HandleFunc("/callback", common.AuthCallBack)
 
 	// Data
-	http.HandleFunc("/data", getdata.GetCarStatus)
-	
+	http.HandleFunc("/data", routes.GetCarStatus)
+
+	// Command
+	http.HandleFunc("/command", routes.IssueCommand)
+
 	fmt.Println("Starting server on port: 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err == nil {

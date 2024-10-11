@@ -23,12 +23,12 @@ func main() {
 
 	go loading(&group, done)
 	go getVehicleData(&group, done, dataChan)
-
+	res := <-dataChan
 	group.Wait()
 
-	res := <-dataChan
 	if res.err != nil {
 		fmt.Println(res.err.Error())
+		return
 	}
 
 	drawlogo.DrawStatus(res.vehicleData)
@@ -44,7 +44,7 @@ func loading(group *sync.WaitGroup, done chan struct{}) {
 	for {
 		select {
 		case <-done:
-			fmt.Printf("\r%s", "                         ")
+			fmt.Printf("\r%s", "                         \n")
 			return
 
 		default:
@@ -80,13 +80,24 @@ func getVehicleData(group *sync.WaitGroup, done chan struct{}, dataChan chan res
 
 	if carDataResponse.StatusCode != 200 {
 		if carDataResponse.StatusCode == 408 {
-			dataChan <- result{err: errors.New(fmt.Sprintf("Error gathering vehicle data: status code %d vehicle is asleep", carDataResponse.StatusCode))}
+			fmt.Println("Waking car")
+			commandResp, error := api.CallIssueCommand("wake")
+			if error != nil {
+				dataChan <- result{err: error}
+				return
+			}
+
+			if commandResp.StatusCode != 200 {
+				error = errors.New(fmt.Sprintln("Could not issue command"))
+				dataChan <- result{err: error}
+				return
+			}
+		} else {
+			error = errors.New(fmt.Sprintf("Error gathing vehicle data: Status Code %d", carDataResponse.StatusCode))
+			dataChan <- result{err: error}
 			return
 		}
-		dataChan <- result{err: errors.New(fmt.Sprintf("Error gathing vehicle data: Status Code %d", carDataResponse.StatusCode))}
-		return
 	}
 
 	dataChan <- result{vehicleData: carDataResponse.Body, err: nil}
-	return
 }

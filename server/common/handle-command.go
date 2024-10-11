@@ -3,25 +3,24 @@ package common
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
-	// "github.com/teslamotors/vehicle-command/pkg/vehicle"
+	"github.com/teslamotors/vehicle-command/pkg/vehicle"
+	"time"
 )
 
-type Request struct {
+type CommandRequest struct {
 	AuthToken string `json:"authToken"`
 	Vin       string `json:"vin"`
 	Command   string `json:"command"`
 }
 
-type Response struct {
+type CommandResponse struct {
 	Success bool   `json:"status"`
 	Message string `json:"message"`
 }
 
-func HandleCommand(req Request) Response {
+func HandleCommand(req CommandRequest) CommandResponse {
 	if req.Vin == "" {
 		return handleReturn("No vehicle VIN found", false)
 	}
@@ -59,20 +58,38 @@ func HandleCommand(req Request) Response {
 		return handleReturn(err.Error(), false)
 	}
 
-	err = car.HonkHorn(ctx)
+	err = handleIssueCommand(ctx, *car, req.Command)
 	if err != nil {
 		return handleReturn(err.Error(), false)
 	}
-
-	//	err = handleIssueCommand(ctx, *car, req.Command)
-	//	if err != nil {
-	//		return handleReturn(err.Error(), false)
-	//	}
 
 	success := fmt.Sprintf("Vehicle VIN: %s, command %s issued successfully", car.VIN(), req.Command)
 
 	return handleReturn(success, true)
 
+}
+
+func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) error {
+	fmt.Println(command)
+	//	err := car.HonkHorn(ctx)
+
+	//poll := time.After(15 * time.Second)
+	err := car.Wakeup(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+
+	//for {
+	//	select {
+	//	case <-poll:
+	//		return err
+
+	//	default:
+	//		err = car.Wakeup(ctx)
+	//		fmt.Println(err)
+	//	}
+	//}
 }
 
 func getPrivateKey() (protocol.ECDHPrivateKey, error) {
@@ -84,13 +101,9 @@ func getPrivateKey() (protocol.ECDHPrivateKey, error) {
 	return privateKey, nil
 }
 
-func handleReturn(err string, status bool) Response {
-	return Response{
+func handleReturn(err string, status bool) CommandResponse {
+	return CommandResponse{
 		Success: status,
 		Message: err,
 	}
 }
-
-//func handleIssueCommand(ctx context.Context, vehicle vehicle.Vehicle, action string) error {
-//	return nil
-//}

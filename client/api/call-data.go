@@ -9,22 +9,22 @@ import (
 )
 
 type VehicleData struct {
-	State               string `json:"state"`
-	BatteryLevel        int    `json:"battery_level"`
-	ChargeRate          int    `json:"charge_rate"`
-	ChargingState       string `json:"charging_state"`
-	MinutesToFullCharge int    `json:"minutes_to_full_charge"`
-	TimeToFullCharge    int    `json:"time_to_full_charge"`
-	InsideTemp          int    `json:"inside_temp"`
-	IsClimateOn         bool   `json:"is_climate_on"`
-	IsPreconditioning   bool   `json:"is_preconditioning"`
-	OutsideTemp         int    `json:"outside_temp"`
-	Locked              bool   `json:"locked"`
-	Odometer            int    `json:"odometer"`
-	ExteriorColor       string `json:"exterior_color"`
-	VehicleName         string `json:"vehicle_name"`
-	CarType             string `json:"car_type"`
-	CarSpecialType      string `json:"car_special_type"`
+	State               string  `json:"state"`
+	BatteryLevel        int     `json:"battery_level"`
+	ChargeRate          float64 `json:"charge_rate"`
+	ChargingState       string  `json:"charging_state"`
+	MinutesToFullCharge int     `json:"minutes_to_full_charge"`
+	TimeToFullCharge    float64 `json:"time_to_full_charge"`
+	InsideTemp          int     `json:"inside_temp"`
+	IsClimateOn         bool    `json:"is_climate_on"`
+	IsPreconditioning   bool    `json:"is_preconditioning"`
+	OutsideTemp         int     `json:"outside_temp"`
+	Locked              bool    `json:"locked"`
+	Odometer            int     `json:"odometer"`
+	ExteriorColor       string  `json:"exterior_color"`
+	VehicleName         string  `json:"vehicle_name"`
+	CarType             string  `json:"car_type"`
+	CarSpecialType      string  `json:"car_special_type"`
 }
 
 type DataResponse struct {
