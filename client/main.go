@@ -80,12 +80,13 @@ func getVehicleData(group *sync.WaitGroup, done chan struct{}, dataChan chan res
 
 	if carDataResponse.StatusCode != 200 {
 		if carDataResponse.StatusCode == 408 {
-			fmt.Println("Waking car")
 			commandResp, error := api.CallIssueCommand("wake")
 			if error != nil {
 				dataChan <- result{err: error}
 				return
 			}
+
+			fmt.Println(commandResp.Body)
 
 			if commandResp.StatusCode != 200 {
 				error = errors.New(fmt.Sprintln("Could not issue command"))

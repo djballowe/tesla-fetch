@@ -21,7 +21,11 @@ func CallIssueCommand(command string) (IssueCommandResponse, error) {
 	var commandStatus CommandStatus
 
 	reqUrl := fmt.Sprintf("http://localhost:8080/command?command=%s", command)
-	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
+	req, err := http.NewRequest(http.MethodPost, reqUrl, nil)
+	// TODO
+	// this needs to be reworked the err doesnt throw if there is an http error
+	// this shouldnt throw server errors client code
+
 	if err != nil {
 		return handleCommandReturn(500, commandStatus, err)
 	}
@@ -42,7 +46,6 @@ func CallIssueCommand(command string) (IssueCommandResponse, error) {
 	if resp.StatusCode != 200 {
 		return handleCommandReturn(500, commandStatus, err)
 	}
-
 
 	err = json.Unmarshal(body, &commandStatus)
 	if err != nil {

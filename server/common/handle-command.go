@@ -71,25 +71,24 @@ func HandleCommand(req CommandRequest) CommandResponse {
 
 func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) error {
 	fmt.Println(command)
-	//	err := car.HonkHorn(ctx)
+	// TODO this running just needs to poll correctly	
 
-	//poll := time.After(15 * time.Second)
+	poll := time.After(15 * time.Second)
 	err := car.Wakeup(ctx)
 	if err != nil {
 		return err
 	}
-	return nil
 
-	//for {
-	//	select {
-	//	case <-poll:
-	//		return err
+	for {
+		select {
+		case <-poll:
+			return err
 
-	//	default:
-	//		err = car.Wakeup(ctx)
-	//		fmt.Println(err)
-	//	}
-	//}
+		default:
+			err = car.Wakeup(ctx)
+			fmt.Println(err)
+		}
+	}
 }
 
 func getPrivateKey() (protocol.ECDHPrivateKey, error) {
