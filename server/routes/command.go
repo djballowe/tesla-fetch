@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"tesla-app/server/common"
+	"tesla-app/server/vehicle-state"
 )
 
 type IssueCommandResponse struct {
@@ -32,6 +33,9 @@ func IssueCommand(writer http.ResponseWriter, req *http.Request) {
 		Vin:       vin,
 		Command:   command,
 	}
+
+	vehicleState := vehicle.VehicleState()
+	fmt.Println("vehicle_state: ", vehicleState)
 
 	commandResp := common.HandleCommand(commandReq)
 

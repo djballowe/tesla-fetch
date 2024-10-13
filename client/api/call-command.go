@@ -24,7 +24,7 @@ func CallIssueCommand(command string) (IssueCommandResponse, error) {
 	req, err := http.NewRequest(http.MethodPost, reqUrl, nil)
 	// TODO
 	// this needs to be reworked the err doesnt throw if there is an http error
-	// this shouldnt throw server errors client code
+	// this shouldnt throw server esc errors on client code
 
 	if err != nil {
 		return handleCommandReturn(500, commandStatus, err)
