@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
-	"github.com/teslamotors/vehicle-command/pkg/vehicle"
+//	"github.com/teslamotors/vehicle-command/pkg/vehicle"
 	"time"
 )
 
@@ -42,7 +42,7 @@ func HandleCommand(req CommandRequest) CommandResponse {
 
 	car, err := account.GetVehicle(ctx, req.Vin, privateKey, nil)
 	if err != nil {
-		return handleReturn(err.Error(), false)
+		return handleReturn(fmt.Sprintf("Error getting vehicle: %s", err.Error()), false)
 	}
 
 	fmt.Printf("VIN: %s\n", car.VIN())
@@ -50,18 +50,18 @@ func HandleCommand(req CommandRequest) CommandResponse {
 
 	err = car.Connect(ctx)
 	if err != nil {
-		return handleReturn(err.Error(), false)
+		return handleReturn(fmt.Sprintf("Error connecting to car: %s", err.Error()), false)
 	}
 
 	err = car.StartSession(ctx, nil)
 	if err != nil {
-		return handleReturn(err.Error(), false)
+		return handleReturn(fmt.Sprintf("Error starting session: %s", err.Error()), false)
 	}
 
-	err = handleIssueCommand(ctx, *car, req.Command)
-	if err != nil {
-		return handleReturn(err.Error(), false)
-	}
+	//	handleIssueCommand(ctx, *car, req.Command)
+	//	if err != nil {
+	//		return handleReturn(fmt.Sprintf("Error issuing command: %s", err.Error()), false)
+	//	}
 
 	success := fmt.Sprintf("Vehicle VIN: %s, command %s issued successfully", car.VIN(), req.Command)
 
@@ -69,27 +69,9 @@ func HandleCommand(req CommandRequest) CommandResponse {
 
 }
 
-func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) error {
-	fmt.Println(command)
-	// TODO this running just needs to poll correctly	
-
-	poll := time.After(15 * time.Second)
-	err := car.Wakeup(ctx)
-	if err != nil {
-		return err
-	}
-
-	for {
-		select {
-		case <-poll:
-			return err
-
-		default:
-			err = car.Wakeup(ctx)
-			fmt.Println(err)
-		}
-	}
-}
+//func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) {
+//	fmt.Println(command)
+//}
 
 func getPrivateKey() (protocol.ECDHPrivateKey, error) {
 	privateKey, err := protocol.LoadPrivateKey("../.temp/private-key.pem")
