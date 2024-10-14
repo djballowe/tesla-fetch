@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"tesla-app/server/common"
 	"tesla-app/server/vehicle-state"
 )
@@ -23,9 +22,20 @@ func IssueCommand(writer http.ResponseWriter, req *http.Request) {
 
 	req.ParseForm()
 	command := req.Form.Get("command")
+	vehicleState, err := vehicle.VehicleState()
+	if err != nil {
+		http.Error(writer, "Could not get vehicle state", http.StatusInternalServerError)
+	}
+
+	state := vehicleState.State
+	vin := vehicleState.Vin
+	fmt.Println("State: ", state)
+	fmt.Println("Vin: ", vin)
+	if state != "online" {
+		// call wake endpoint
+	}
 
 	tokenStore, state := common.GetTokenStore()
-	vin := os.Getenv("VIN")
 
 	authToken := tokenStore[state].AccessToken
 	var commandReq = common.CommandRequest{
@@ -33,9 +43,6 @@ func IssueCommand(writer http.ResponseWriter, req *http.Request) {
 		Vin:       vin,
 		Command:   command,
 	}
-
-	vehicleState := vehicle.VehicleState()
-	fmt.Println("vehicle_state: ", vehicleState)
 
 	commandResp := common.HandleCommand(commandReq)
 

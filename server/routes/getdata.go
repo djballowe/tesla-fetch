@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"tesla-app/server/common"
+	"tesla-app/server/vehicle-state"
 )
 
 type Command struct {
@@ -334,6 +335,14 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	tokenStore, state := common.GetTokenStore()
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
+	vehicleState, err := vehicle.VehicleState()
+	if err != nil {
+		http.Error(writer, "Could not get vehicle state", http.StatusInternalServerError)
+		return
+	}
+	if vehicleState.State != "online" {
+		// call wake api
+	}
 
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 

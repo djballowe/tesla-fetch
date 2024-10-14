@@ -1,6 +1,7 @@
-package vehicle 
+package vehicle
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,23 +10,44 @@ import (
 )
 
 type VehicleStateResponse struct {
-	Error error
 	State string
+	Vin   string
 }
 
-func VehicleState() VehicleStateResponse {
+type TeslaVehicleApiResponse struct {
+	ID             int64  `json:"id"`
+	UserID         int64  `json:"user_id"`
+	VehicleID      int64  `json:"vehicle_id"`
+	Vin            string `json:"vin"`
+	Color          any    `json:"color"`
+	AccessType     string `json:"access_type"`
+	GranularAccess struct {
+		HidePrivate bool `json:"hide_private"`
+	} `json:"granular_access"`
+	Tokens                 any    `json:"tokens"`
+	State                  string `json:"state"`
+	InService              bool   `json:"in_service"`
+	IDS                    string `json:"id_s"`
+	CalendarEnabled        bool   `json:"calendar_enabled"`
+	APIVersion             int    `json:"api_version"`
+	BackseatToken          any    `json:"backseat_token"`
+	BackseatTokenUpdatedAt any    `json:"backseat_token_updated_at"`
+	BleAutopairEnrolled    bool   `json:"ble_autopair_enrolled"`
+}
+
+func VehicleState() (VehicleStateResponse, error) {
 	var vehicleStateResponse = VehicleStateResponse{}
 
 	tokenStore, state := common.GetTokenStore()
-	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
+	baseUrl := os.Getenv("TESLA_BASE_URL")
 
-	url := fmt.Sprintf("%s/vehicles/%s/wake_up", baseUrl, carId)
+	url := fmt.Sprintf("%s/vehicles/%s", baseUrl, carId)
 
 	client := &http.Client{}
-	vehicleStateRequest, err := http.NewRequest("GET", url, nil)
+	vehicleStateRequest, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		return vehicleStateResponse
+		return vehicleStateResponse, err
 	}
 
 	vehicleStateRequest.Header = http.Header{
@@ -35,17 +57,25 @@ func VehicleState() VehicleStateResponse {
 
 	res, err := client.Do(vehicleStateRequest)
 	if err != nil {
-		return vehicleStateResponse
+		return vehicleStateResponse, err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	fmt.Println(res.Status)
 	if err != nil {
-		return vehicleStateResponse
+		return vehicleStateResponse, err
 	}
 
-	fmt.Println(string(body))
+	var responseBody TeslaVehicleApiResponse
 
-	return vehicleStateResponse
+	err = json.Unmarshal(body, &responseBody)
+	if err != nil {
+		return vehicleStateResponse, err
+	}
+
+	vehicleStateResponse.State = responseBody.State
+	vehicleStateResponse.Vin = responseBody.Vin
+
+	return vehicleStateResponse, nil
 }
