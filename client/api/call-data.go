@@ -36,6 +36,8 @@ func CallGetVehicleData() (DataResponse, error) {
 	dataResponse := &DataResponse{}
 	var vehicleData VehicleData
 
+	// TODO handle errors better here
+
 	req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/data", nil)
 	if err != nil {
 		return DataResponse{
