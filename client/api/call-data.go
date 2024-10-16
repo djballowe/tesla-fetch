@@ -58,19 +58,19 @@ func CallGetVehicleData() (DataResponse, error) {
 		}, err
 	}
 
-	if resp.StatusCode != 200 {
-		return DataResponse{
-			StatusCode: resp.StatusCode,
-			Body:       vehicleData,
-		}, nil
-	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return DataResponse{
 			StatusCode: 500,
 			Body:       vehicleData,
 		}, err
+	}
+
+	if resp.StatusCode != 200 {
+		return DataResponse{
+			StatusCode: resp.StatusCode,
+			Body:       vehicleData,
+		}, errors.New(fmt.Sprintf("Server responded with an error: %s", string(body)))
 	}
 
 	err = json.Unmarshal(body, &vehicleData)

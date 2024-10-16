@@ -335,9 +335,10 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	tokenStore, state := common.GetTokenStore()
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
+
 	vehicleState, err := vehicle.VehicleState()
 	if err != nil {
-		http.Error(writer, "Could not get vehicle state", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err), http.StatusInternalServerError)
 		return
 	}
 	if vehicleState.State != "online" {
@@ -353,7 +354,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	client := &http.Client{}
 	vehicleDataRequest, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		http.Error(writer, "Failed to create get vehicles request", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Failed to create get vehicles request: %s", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -364,7 +365,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	res, err := client.Do(vehicleDataRequest)
 	if err != nil {
-		http.Error(writer, "Could not get vehicles", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not get vehicles: %s", err), http.StatusInternalServerError)
 		return
 	}
 	defer res.Body.Close()
@@ -372,7 +373,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(res.Body)
 	fmt.Println(res.Status)
 	if err != nil {
-		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Internal Server Error: %s", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -385,7 +386,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
-		http.Error(writer, "Could not unmarshal response body", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not unmarshal response body: %s"), http.StatusInternalServerError)
 		return
 	}
 
@@ -410,7 +411,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	jsonResponse, err := json.Marshal(returnVal)
 	if err != nil {
-		http.Error(writer, "Could not marshal response body", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not marshal response body", err), http.StatusInternalServerError)
 		return
 	}
 
