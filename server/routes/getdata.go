@@ -336,18 +336,22 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
+	// State is returning empty
+
 	vehicleState, err := vehicle.VehicleState()
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err), http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err), vehicleState.Status)
 		return
 	}
-	if vehicleState.State != "online" {
-		err := vehicle.PollWake()
-		if err != nil {
-			http.Error(writer, "Could not wake vehicle", http.StatusInternalServerError)
-			return
-		}
-	}
+	//	if vehicleState.State != "online" {
+	//		err := vehicle.PollWake()
+	//		if err != nil {
+	//			http.Error(writer, "Could not wake vehicle", http.StatusInternalServerError)
+	//			return
+	//		}
+	//	}
+
+	fmt.Printf("vehicle state: %s\n", vehicleState.State)
 
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 
@@ -371,7 +375,6 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
-	fmt.Println(res.Status)
 	if err != nil {
 		http.Error(writer, fmt.Sprintf("Internal Server Error: %s", err), http.StatusInternalServerError)
 		return
@@ -386,7 +389,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Could not unmarshal response body: %s"), http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not unmarshal response body: %s", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -411,7 +414,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	jsonResponse, err := json.Marshal(returnVal)
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Could not marshal response body", err), http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not marshal response body: %s", err), http.StatusInternalServerError)
 		return
 	}
 

@@ -2,6 +2,7 @@ package vehicle
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,20 +11,18 @@ import (
 )
 
 type VehicleStateResponse struct {
-	State string
-	Vin   string
+	State  string
+	Vin    string
+	Status int
 }
 
 type TeslaVehicleApiResponse struct {
-	ID             int64  `json:"id"`
-	UserID         int64  `json:"user_id"`
-	VehicleID      int64  `json:"vehicle_id"`
-	Vin            string `json:"vin"`
-	Color          any    `json:"color"`
-	AccessType     string `json:"access_type"`
-	GranularAccess struct {
-		HidePrivate bool `json:"hide_private"`
-	} `json:"granular_access"`
+	ID                     int64  `json:"id"`
+	UserID                 int64  `json:"user_id"`
+	VehicleID              int64  `json:"vehicle_id"`
+	Vin                    string `json:"vin"`
+	Color                  any    `json:"color"`
+	AccessType             string `json:"access_type"`
 	Tokens                 any    `json:"tokens"`
 	State                  string `json:"state"`
 	InService              bool   `json:"in_service"`
@@ -45,9 +44,9 @@ func VehicleState() (VehicleStateResponse, error) {
 	url := fmt.Sprintf("%s/vehicles/%s", baseUrl, carId)
 
 	client := &http.Client{}
-	vehicleStateRequest, err := http.NewRequest("POST", url, nil)
+	vehicleStateRequest, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return vehicleStateResponse, err
+		return returnGenericError(), err
 	}
 
 	vehicleStateRequest.Header = http.Header{
@@ -57,25 +56,42 @@ func VehicleState() (VehicleStateResponse, error) {
 
 	res, err := client.Do(vehicleStateRequest)
 	if err != nil {
-		return vehicleStateResponse, err
+		return returnGenericError(), err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
-	fmt.Println(res.Status)
 	if err != nil {
-		return vehicleStateResponse, err
+		return returnGenericError(), err
+	}
+
+	if res.StatusCode != 200 {
+		err = errors.New(fmt.Sprintf("vehicle state response failed with status code %s", res.Status))
+		return VehicleStateResponse{
+			State:  "error",
+			Vin:    "",
+			Status: res.StatusCode,
+		}, err
 	}
 
 	var responseBody TeslaVehicleApiResponse
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
-		return vehicleStateResponse, err
+		return returnGenericError(), err
 	}
 
 	vehicleStateResponse.State = responseBody.State
 	vehicleStateResponse.Vin = responseBody.Vin
+	vehicleStateResponse.Status = res.StatusCode
 
 	return vehicleStateResponse, nil
+}
+
+func returnGenericError() VehicleStateResponse {
+	return VehicleStateResponse{
+		State:  "error",
+		Vin:    "",
+		Status: 500,
+	}
 }

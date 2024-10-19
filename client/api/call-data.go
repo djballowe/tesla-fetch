@@ -70,7 +70,7 @@ func CallGetVehicleData() (DataResponse, error) {
 		return DataResponse{
 			StatusCode: resp.StatusCode,
 			Body:       vehicleData,
-		}, errors.New(fmt.Sprintf("Server responded with an error: %s", string(body)))
+		}, nil
 	}
 
 	err = json.Unmarshal(body, &vehicleData)
