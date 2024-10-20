@@ -16,7 +16,9 @@ type WakeResponse struct {
 }
 
 type TeslaVehicleWakeResponse struct {
-	State string `json:"state"`
+	Response struct {
+		State string `json:"state"`
+	}
 }
 
 func Wake() (WakeResponse, error) {
@@ -46,7 +48,6 @@ func Wake() (WakeResponse, error) {
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
-	fmt.Println(res.Status)
 	if err != nil {
 		return wakeResponse, err
 	}
@@ -58,7 +59,7 @@ func Wake() (WakeResponse, error) {
 		return wakeResponse, err
 	}
 
-	wakeResponse.State = responseBody.State
+	wakeResponse.State = responseBody.Response.State
 
 	return wakeResponse, nil
 }
@@ -66,13 +67,14 @@ func Wake() (WakeResponse, error) {
 func PollWake() error {
 	state := "offline"
 	timeout := time.After(30 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 
 	for {
 		select {
-			case <- timeout:
+		case <-timeout:
 			return errors.New("Timeout, could not wake vehicle")
 
-		default:
+		case <-ticker.C:
 			wakeResponse, _ := Wake()
 			state = wakeResponse.State
 			if state == "online" {

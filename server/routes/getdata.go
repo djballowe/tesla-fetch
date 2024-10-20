@@ -336,22 +336,18 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
-	// State is returning empty
-
 	vehicleState, err := vehicle.VehicleState()
 	if err != nil {
 		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err), vehicleState.Status)
 		return
 	}
-	//	if vehicleState.State != "online" {
-	//		err := vehicle.PollWake()
-	//		if err != nil {
-	//			http.Error(writer, "Could not wake vehicle", http.StatusInternalServerError)
-	//			return
-	//		}
-	//	}
-
-	fmt.Printf("vehicle state: %s\n", vehicleState.State)
+	if vehicleState.State != "online" {
+		err := vehicle.PollWake()
+		if err != nil {
+			http.Error(writer, "Could not wake vehicle", http.StatusInternalServerError)
+			return
+		}
+	}
 
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 
