@@ -10,3 +10,6 @@ Teslafetch does not support any Model X or S released before 2018.
 ### Get Data
 
 ![Kapture 2024-10-20 at 16 01 41](https://github.com/user-attachments/assets/5f7ef76a-180c-4e66-b64d-700bc429fa1a)
+
+### Commands
+Coming soon
