@@ -304,22 +304,26 @@ type VehicleResponse struct {
 }
 
 type ApiResponse struct {
-	State               string  `json:"state"`
-	BatteryLevel        int     `json:"battery_level"`
-	ChargeRate          float64 `json:"charge_rate"`
-	ChargingState       string  `json:"charging_state"`
-	MinutesToFullCharge int     `json:"minutes_to_full_charge"`
-	TimeToFullCharge    float64 `json:"time_to_full_charge"`
-	InsideTemp          int     `json:"inside_temp"`
-	IsClimateOn         bool    `json:"is_climate_on"`
-	IsPreconditioning   bool    `json:"is_preconditioning"`
-	OutsideTemp         int     `json:"outside_temp"`
-	Locked              bool    `json:"locked"`
-	Odometer            int     `json:"odometer"`
-	Color               string  `json:"exterior_color"`
-	VehicleName         string  `json:"vehicle_name"`
-	CarType             string  `json:"car_type"`
-	CarSpecialType      string  `json:"car_special_type"`
+	State                string  `json:"state"`
+	BatteryLevel         int     `json:"battery_level"`
+	BatteryRange         float64 `json:"battery_range"`
+	ChargeRate           float64 `json:"charge_rate"`
+	ChargingState        string  `json:"charging_state"`
+	ChargeLimitSoc       int     `json:"charge_limit_soc"`
+	MinutesToFullCharge  int     `json:"minutes_to_full_charge"`
+	TimeToFullCharge     float64 `json:"time_to_full_charge"`
+	InsideTemp           int     `json:"inside_temp"`
+	PassengerTempSetting float64 `json:"passenger_temp_setting"`
+	DriverTempSetting    float64 `json:"driver_temp_setting"`
+	IsClimateOn          bool    `json:"is_climate_on"`
+	IsPreconditioning    bool    `json:"is_preconditioning"`
+	OutsideTemp          int     `json:"outside_temp"`
+	Locked               bool    `json:"locked"`
+	Odometer             int     `json:"odometer"`
+	Color                string  `json:"exterior_color"`
+	VehicleName          string  `json:"vehicle_name"`
+	CarType              string  `json:"car_type"`
+	CarSpecialType       string  `json:"car_special_type"`
 }
 
 func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
@@ -390,22 +394,26 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 	}
 
 	returnVal := ApiResponse{
-		State:               responseBody.Response.State,
-		BatteryLevel:        responseBody.Response.ChargeState.BatteryLevel,
-		ChargeRate:          responseBody.Response.ChargeState.ChargeRate,
-		ChargingState:       responseBody.Response.ChargeState.ChargingState,
-		MinutesToFullCharge: responseBody.Response.ChargeState.MinutesToFullCharge,
-		TimeToFullCharge:    responseBody.Response.ChargeState.TimeToFullCharge,
-		InsideTemp:          int(responseBody.Response.ClimateState.InsideTemp),
-		OutsideTemp:         int(responseBody.Response.ClimateState.OutsideTemp),
-		IsClimateOn:         responseBody.Response.ClimateState.IsClimateOn,
-		IsPreconditioning:   responseBody.Response.ClimateState.IsPreconditioning,
-		Locked:              responseBody.Response.VehicleState.Locked,
-		Odometer:            int(responseBody.Response.VehicleState.Odometer),
-		Color:               responseBody.Response.VehicleConfig.ExteriorColor,
-		VehicleName:         responseBody.Response.VehicleState.VehicleName,
-		CarType:             responseBody.Response.VehicleConfig.CarType,
-		CarSpecialType:      responseBody.Response.VehicleConfig.CarSpecialType,
+		State:                responseBody.Response.State,
+		BatteryLevel:         responseBody.Response.ChargeState.BatteryLevel,
+		BatteryRange:         responseBody.Response.ChargeState.BatteryRange,
+		ChargeRate:           responseBody.Response.ChargeState.ChargeRate,
+		ChargingState:        responseBody.Response.ChargeState.ChargingState,
+		ChargeLimitSoc:       responseBody.Response.ChargeState.ChargeLimitSoc,
+		MinutesToFullCharge:  responseBody.Response.ChargeState.MinutesToFullCharge,
+		TimeToFullCharge:     responseBody.Response.ChargeState.TimeToFullCharge,
+		InsideTemp:           int(responseBody.Response.ClimateState.InsideTemp),
+		OutsideTemp:          int(responseBody.Response.ClimateState.OutsideTemp),
+		DriverTempSetting:    responseBody.Response.ClimateState.DriverTempSetting,
+		PassengerTempSetting: responseBody.Response.ClimateState.PassengerTempSetting,
+		IsClimateOn:          responseBody.Response.ClimateState.IsClimateOn,
+		IsPreconditioning:    responseBody.Response.ClimateState.IsPreconditioning,
+		Locked:               responseBody.Response.VehicleState.Locked,
+		Odometer:             int(responseBody.Response.VehicleState.Odometer),
+		Color:                responseBody.Response.VehicleConfig.ExteriorColor,
+		VehicleName:          responseBody.Response.VehicleState.VehicleName,
+		CarType:              responseBody.Response.VehicleConfig.CarType,
+		CarSpecialType:       responseBody.Response.VehicleConfig.CarSpecialType,
 	}
 
 	jsonResponse, err := json.Marshal(returnVal)

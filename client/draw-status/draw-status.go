@@ -45,14 +45,18 @@ func buildInfo(vehicleData api.VehicleData) []string {
 	info := []string{
 		fmt.Sprintf("%s", header),
 		fmt.Sprintf("%s", headerLine),
-		fmt.Sprintf("\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", vehicleData.ExteriorColor),
+		fmt.Sprintf("\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", vehicleData.Color),
 		fmt.Sprintf("\033[1;31mMiles\033[0m: \033[1;37m%d\033[0m", vehicleData.Odometer),
-		fmt.Sprintf("\033[1;31mCharge\033[0m: \033[1;37m%d\033[0m", vehicleData.BatteryLevel),
+		fmt.Sprintf("\033[1;31mCharge\033[0m: \033[1;37m%d%%\033[0m", vehicleData.BatteryLevel),
+		fmt.Sprintf("\033[1;31mCharge Limit\033[0m: \033[1;37m%d\033[0m", vehicleData.ChargeLimitSoc),
+		fmt.Sprintf("\033[1;31mRange\033[0m: \033[1;37m%.1f Miles\033[0m", vehicleData.BatteryRange),
 		fmt.Sprintf("\033[1;31mCharge State\033[0m: \033[1;37m%s\033[0m", vehicleData.ChargingState),
-		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%f\033[0m", vehicleData.ChargeRate),
+		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%.1f\033[0m", vehicleData.ChargeRate),
 		fmt.Sprintf("\033[1;31mClimate On\033[0m: \033[1;37m%t\033[0m", vehicleData.IsClimateOn),
-		fmt.Sprintf("\033[1;31mClimate Inside\033[0m: \033[1;37m%d\033[0m", convertClimate(vehicleData.InsideTemp)),
-		fmt.Sprintf("\033[1;31mClimate Outside\033[0m: \033[1;37m%d\033[0m", convertClimate(vehicleData.OutsideTemp)),
+		fmt.Sprintf("\033[1;31mClimate Inside\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(vehicleData.InsideTemp)),
+		fmt.Sprintf("\033[1;31mClimate Outside\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(vehicleData.OutsideTemp)),
+		fmt.Sprintf("\033[1;31mDriver Temp Setting\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(int(vehicleData.DriverTempSetting))),
+		fmt.Sprintf("\033[1;31mPassenger Temp Setting\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(int(vehicleData.PassengerTempSetting))),
 		fmt.Sprintf("\033[1;31mLocked\033[0m: \033[1;37m%t\033[0m", vehicleData.Locked),
 	}
 
