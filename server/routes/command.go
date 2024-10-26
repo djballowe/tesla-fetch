@@ -24,15 +24,21 @@ func IssueCommand(writer http.ResponseWriter, req *http.Request) {
 	command := req.Form.Get("command")
 	vehicleState, err := vehicle.VehicleState()
 	if err != nil {
-		http.Error(writer, "Could not get vehicle state", http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err.Error()), http.StatusInternalServerError)
+		return
 	}
 
 	state := vehicleState.State
 	vin := vehicleState.Vin
-	fmt.Println("State: ", state)
-	fmt.Println("Vin: ", vin)
+
+	fmt.Println("vehicleState: ", vehicleState)
+
 	if state != "online" {
-		// call wake endpoint
+		err := vehicle.PollWake()
+		if err != nil {
+			http.Error(writer, "Could not wake vehicle", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	tokenStore, state := common.GetTokenStore()

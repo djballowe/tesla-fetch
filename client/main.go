@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"tesla-app/client/api"
 	"tesla-app/client/draw-status"
 	"tesla-app/client/ui"
 	data "tesla-app/client/vehicle-data"
@@ -30,6 +31,10 @@ func setCommand(command string) {
 	switch command {
 	case "lock":
 		fmt.Println("Locking car")
+		_, err := api.CallIssueCommand("lock")
+		if err != nil {
+			fmt.Printf("error: %s", err.Error())
+		}
 		break
 	case "unlock":
 		fmt.Println("Unlocking car")
