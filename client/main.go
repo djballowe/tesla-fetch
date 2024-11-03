@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"tesla-app/client/api"
 	"tesla-app/client/draw-status"
+	postcommand "tesla-app/client/post-command"
 	"tesla-app/client/ui"
 	data "tesla-app/client/vehicle-data"
 )
@@ -28,22 +28,24 @@ func main() {
 }
 
 func setCommand(command string) {
-	switch command {
-	case "lock":
-		fmt.Println("Locking car")
-		commandResponse, err := api.CallIssueCommand("lock")
+	var group sync.WaitGroup
+	group.Add(2)
+
+	done := make(chan struct{})
+	errChan := make(chan error)
+
+	// TODO fix this error handling 
+	go ui.LoadingSpinner(&group, done)
+	go postcommand.PostCommand(command, &group, done, errChan)
+	group.Wait()
+
+	for err := range errChan {
 		if err != nil {
-			fmt.Printf("error: %s", err.Error())
+			fmt.Printf("Error: %s", err.Error())
+			return
 		}
-		fmt.Println(commandResponse)
-		break
-	case "unlock":
-		fmt.Println("Unlocking car")
-		break
-	default:
-		fmt.Println("error: not a valid command")
-		break
 	}
+
 	return
 }
 
