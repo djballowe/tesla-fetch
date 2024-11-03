@@ -31,10 +31,11 @@ func setCommand(command string) {
 	switch command {
 	case "lock":
 		fmt.Println("Locking car")
-		_, err := api.CallIssueCommand("lock")
+		commandResponse, err := api.CallIssueCommand("lock")
 		if err != nil {
 			fmt.Printf("error: %s", err.Error())
 		}
+		fmt.Println(commandResponse)
 		break
 	case "unlock":
 		fmt.Println("Unlocking car")

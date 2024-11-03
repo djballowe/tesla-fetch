@@ -24,6 +24,7 @@ func IssueCommand(writer http.ResponseWriter, req *http.Request) {
 	command := req.Form.Get("command")
 	vehicleState, err := vehicle.VehicleState()
 	if err != nil {
+		fmt.Println(err.Error())
 		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
@@ -52,7 +53,7 @@ func IssueCommand(writer http.ResponseWriter, req *http.Request) {
 
 	commandResp := common.HandleCommand(commandReq)
 
-	fmt.Printf("Command issue status: Success? %t Message: %s\n", commandResp.Success, commandResp.Message)
+	fmt.Printf("Command issue status: %t Message: %s\n", commandResp.Success, commandResp.Message)
 
 	if !commandResp.Success {
 		http.Error(writer, "Command could not be issued", http.StatusInternalServerError)

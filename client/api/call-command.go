@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -40,9 +41,8 @@ func CallIssueCommand(command string) (IssueCommandResponse, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		// TODO handle error
-		fmt.Println(err)
-		return handleCommandReturn(500, commandStatus, err)
+		err = errors.New(fmt.Sprintf(string(body)))
+		return handleCommandReturn(resp.StatusCode, commandStatus, err)
 	}
 
 	err = json.Unmarshal(body, &commandStatus)

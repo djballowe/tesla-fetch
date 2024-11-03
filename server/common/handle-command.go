@@ -2,11 +2,13 @@ package common
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
+
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
 	"github.com/teslamotors/vehicle-command/pkg/vehicle"
-	"time"
 )
 
 type CommandRequest struct {
@@ -70,8 +72,17 @@ func HandleCommand(req CommandRequest) CommandResponse {
 }
 
 func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) error {
-	fmt.Println(command)
-	err := car.Lock(ctx)
+	fmt.Printf("Issuing: %s command\n", command)
+	var err error
+
+	switch command {
+	case "lock":
+		err = car.Lock(ctx)
+	case "unlock":
+		err = car.Unlock(ctx)
+	default:
+		err = errors.New(fmt.Sprintf("%s: is not a valid command\n", command))
+	}
 	if err != nil {
 		return err
 	}
