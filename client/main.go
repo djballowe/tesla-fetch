@@ -28,22 +28,9 @@ func main() {
 }
 
 func setCommand(command string) {
-	var group sync.WaitGroup
-	group.Add(2)
-
-	done := make(chan struct{})
-	errChan := make(chan error)
-
-	// TODO fix this error handling 
-	go ui.LoadingSpinner(&group, done)
-	go postcommand.PostCommand(command, &group, done, errChan)
-	group.Wait()
-
-	for err := range errChan {
-		if err != nil {
-			fmt.Printf("Error: %s", err.Error())
-			return
-		}
+	err := postcommand.PostCommand(command)
+	if err != nil {
+		fmt.Printf("error: %s\n", err)
 	}
 
 	return
