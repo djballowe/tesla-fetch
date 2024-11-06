@@ -342,7 +342,7 @@ func GetCarStatus(writer http.ResponseWriter, req *http.Request) {
 
 	vehicleState, err := vehicle.VehicleState()
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err), vehicleState.Status)
+		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err), vehicleState.StatusCode)
 		return
 	}
 	if vehicleState.State != "online" {

@@ -24,7 +24,7 @@ func IssueCommand(writer http.ResponseWriter, req *http.Request) {
 	command := req.Form.Get("command")
 	vehicleState, err := vehicle.VehicleState()
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err.Error()), http.StatusInternalServerError)
+		http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err.Error()), vehicleState.StatusCode)
 		return
 	}
 
