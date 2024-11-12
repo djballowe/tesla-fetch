@@ -11,9 +11,9 @@ import (
 )
 
 type VehicleStateResponse struct {
-	State  string
-	Vin    string
-	Status int
+	State      string
+	Vin        string
+	StatusCode int
 }
 
 type TeslaVehicleApiResponse struct {
@@ -73,9 +73,9 @@ func VehicleState() (VehicleStateResponse, error) {
 	if res.StatusCode != 200 {
 		err = errors.New(fmt.Sprintf("vehicle state response failed with status code %s", res.Status))
 		return VehicleStateResponse{
-			State:  "error",
-			Vin:    "",
-			Status: res.StatusCode,
+			State:      "error",
+			Vin:        "",
+			StatusCode: res.StatusCode,
 		}, err
 	}
 
@@ -88,15 +88,15 @@ func VehicleState() (VehicleStateResponse, error) {
 
 	vehicleStateResponse.State = responseBody.Response.State
 	vehicleStateResponse.Vin = responseBody.Response.Vin
-	vehicleStateResponse.Status = res.StatusCode
+	vehicleStateResponse.StatusCode = res.StatusCode
 
 	return vehicleStateResponse, nil
 }
 
 func returnGenericError() VehicleStateResponse {
 	return VehicleStateResponse{
-		State:  "error",
-		Vin:    "",
-		Status: 500,
+		State:      "error",
+		Vin:        "",
+		StatusCode: 500,
 	}
 }
