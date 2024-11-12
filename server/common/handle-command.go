@@ -80,6 +80,8 @@ func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string
 		err = car.Lock(ctx)
 	case "unlock":
 		err = car.Unlock(ctx)
+	case "climate":
+		err = car.ClimateOn(ctx)
 	default:
 		err = errors.New(fmt.Sprintf("%s: is not a valid command\n", command))
 	}
