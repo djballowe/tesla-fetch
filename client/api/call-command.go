@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,14 +12,16 @@ type CallIssueCommandResponse struct {
 	Body       string
 }
 
+type ResponseBody struct {
+	Message string
+	Success bool
+}
+
 func CallIssueCommand(command string) (CallIssueCommandResponse, error) {
 	reqUrl := fmt.Sprintf("http://localhost:8080/command?command=%s", command)
 	req, err := http.NewRequest(http.MethodPost, reqUrl, nil)
 	if err != nil {
-		return CallIssueCommandResponse{
-			StatusCode: 500,
-			Body:       "Error",
-		}, err
+		return handleReturn("Error", 500, err)
 	}
 
 	req.Header.Add("Accept", "aplication/json")
@@ -26,29 +29,31 @@ func CallIssueCommand(command string) (CallIssueCommandResponse, error) {
 
 	resp, err := client.Do(req)
 	if resp == nil || err != nil {
-		return CallIssueCommandResponse{
-			StatusCode: 500,
-			Body:       "Error",
-		}, err
+		return handleReturn("Error", 500, err)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return CallIssueCommandResponse{
-			StatusCode: 500,
-			Body:       "Error",
-		}, err
+		return handleReturn("Error", 500, err)
+	}
+
+	var responseBody ResponseBody
+	err = json.Unmarshal(body, &responseBody)
+	if err != nil {
+		return handleReturn("Error", 500, err)
 	}
 
 	if resp.StatusCode != 200 {
-		return CallIssueCommandResponse{
-			StatusCode: resp.StatusCode,
-			Body:       string(body),
-		}, nil
+		return handleReturn(responseBody.Message, resp.StatusCode, nil)
 	}
 
+	return handleReturn(responseBody.Message, resp.StatusCode, nil)
+
+}
+
+func handleReturn(body string, statusCode int, err error) (CallIssueCommandResponse, error) {
 	return CallIssueCommandResponse{
-		StatusCode: 200,
-		Body:       string(body),
-	}, nil
+		StatusCode: statusCode,
+		Body:       body,
+	}, err
 }

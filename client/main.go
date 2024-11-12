@@ -32,6 +32,8 @@ func setCommand(command string) {
 	if err != nil {
 		fmt.Printf("error: %s\n", err)
 	}
+
+	fmt.Printf("Command %s issued successfully\n", command)
 	return
 }
 
