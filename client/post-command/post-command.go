@@ -29,7 +29,7 @@ func PostCommand(command string) error {
 		return err
 	}
 
-	fmt.Println(response.Body.Message)
+	fmt.Println(response.Body)
 
 	return nil
 }

@@ -33,7 +33,6 @@ func setCommand(command string) {
 		fmt.Printf("error: %s\n", err)
 	}
 
-	fmt.Printf("Command %s issued successfully\n", command)
 	return
 }
 
