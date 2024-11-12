@@ -7,9 +7,8 @@ import (
 )
 
 func PostCommand(command string) error {
-	response := api.CallIssueCommand(command)
-	if response.Error != nil {
-		err := response.Error
+	response, err := api.CallIssueCommand(command)
+	if err != nil {
 		return err
 	}
 
@@ -19,18 +18,16 @@ func PostCommand(command string) error {
 			return err
 		}
 
-		response = api.CallIssueCommand(command)
-		if response.Error != nil {
-			err = response.Error
-			return response.Error
+		response, err = api.CallIssueCommand(command)
+		if err != nil {
+			return err
 		}
 	}
 
-	if response.Status != 200 {
-		err := errors.New(fmt.Sprintf("Failed to issue command: %s Status Code: %d", response.Message, response.Status))
+	if response.StatusCode != 200 {
+		err := errors.New(fmt.Sprintf("Failed to issue command: %s Status Code: %d", response.Body, response.StatusCode))
 		return err
 	}
-
 
 	return nil
 
