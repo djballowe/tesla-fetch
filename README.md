@@ -25,4 +25,4 @@ will lock your car and will return an error if already locked
 will unlock your car and return an error if its already unlocked
 #### Climate
 `tfetch climate`
-will toggle climate on if off and off if on
+will toggle climate
