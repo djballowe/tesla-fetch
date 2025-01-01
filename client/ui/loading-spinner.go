@@ -12,7 +12,6 @@ func LoadingSpinner(done chan struct{}) {
 	for {
 		select {
 		case <-done:
-			fmt.Printf("\r%s", "                         \n")
 			return
 
 		default:

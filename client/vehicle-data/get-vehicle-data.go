@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"tesla-app/client/api"
-	"time"
 )
 
 type DataResult struct {
@@ -37,9 +36,6 @@ func GetVehicleData(done chan struct{}, dataChan chan DataResult, statusChan cha
 			return
 		}
 	}
-
-	statusChan <- "test channel status"
-	time.Sleep(2000 * time.Millisecond)
 
 	if carDataResponse.StatusCode != 200 {
 		error = errors.New(fmt.Sprintf("Error gathering vehicle data: Status Code %d", carDataResponse.StatusCode))
