@@ -1,10 +1,10 @@
-package data 
+package data
 
 import (
 	"errors"
 	"fmt"
-	"sync"
 	"tesla-app/client/api"
+	"time"
 )
 
 type DataResult struct {
@@ -12,9 +12,10 @@ type DataResult struct {
 	Err         error
 }
 
-func GetVehicleData(group *sync.WaitGroup, done chan struct{}, dataChan chan DataResult) {
-	defer group.Done()
+func GetVehicleData(done chan struct{}, dataChan chan DataResult, statusChan chan string) {
+	statusChan <- "Fetching vehicle data"
 	defer close(done)
+	defer close(statusChan)
 	carDataResponse, error := api.CallGetVehicleData()
 	if error != nil {
 		dataChan <- DataResult{Err: error}
@@ -22,18 +23,23 @@ func GetVehicleData(group *sync.WaitGroup, done chan struct{}, dataChan chan Dat
 	}
 
 	if carDataResponse.StatusCode == 401 {
+		statusChan <- "Fetching authentication"
 		authResponse, error := api.CallAuth()
 		if error != nil || authResponse.StatusCode != 200 {
 			dataChan <- DataResult{Err: error}
 			return
 		}
 
+		statusChan <- "Fetching vehicle data"
 		carDataResponse, error = api.CallGetVehicleData()
 		if error != nil {
 			dataChan <- DataResult{Err: error}
 			return
 		}
 	}
+
+	statusChan <- "test channel status"
+	time.Sleep(2000 * time.Millisecond)
 
 	if carDataResponse.StatusCode != 200 {
 		error = errors.New(fmt.Sprintf("Error gathering vehicle data: Status Code %d", carDataResponse.StatusCode))
