@@ -68,6 +68,7 @@ func setGetData() {
 		return
 	}
 
+	fmt.Printf("\r%s", "                                         ")
 	drawlogo.DrawStatus(res.VehicleData)
 
 	return
