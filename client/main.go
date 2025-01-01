@@ -38,13 +38,28 @@ func setCommand(command string) {
 
 func setGetData() {
 	var group sync.WaitGroup
-	group.Add(2)
+	group.Add(1)
 
 	done := make(chan struct{})
 	dataChan := make(chan data.DataResult)
+	statusChan := make(chan string)
 
-	go ui.LoadingSpinner(&group, done)
-	go data.GetVehicleData(&group, done, dataChan)
+	go func() {
+		defer group.Done()
+		data.GetVehicleData(done, dataChan, statusChan)
+	}()
+
+	go func() {
+		ui.LoadingSpinner(done)
+	}()
+
+	go func() {
+		for status := range statusChan {
+			fmt.Printf("\r%s\r\033[2C", "                           ")
+			fmt.Printf("%s", status)
+		}
+	}()
+
 	res := <-dataChan
 	group.Wait()
 

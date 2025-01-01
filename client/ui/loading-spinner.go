@@ -1,13 +1,11 @@
-package ui 
+package ui
 
 import (
 	"fmt"
-	"sync"
 	"time"
 )
 
-func LoadingSpinner(group *sync.WaitGroup, done chan struct{}) {
-	defer group.Done()
+func LoadingSpinner(done chan struct{}) {
 	loadSpinner := [10]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	idx := 0
 
@@ -18,7 +16,7 @@ func LoadingSpinner(group *sync.WaitGroup, done chan struct{}) {
 			return
 
 		default:
-			fmt.Printf("\r%s Fetching vehicle data", loadSpinner[idx%10])
+			fmt.Printf("\r%s", loadSpinner[idx%10])
 			time.Sleep(50 * time.Millisecond)
 			idx++
 		}
