@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type CallIssueCommandResponse struct {
@@ -18,7 +19,9 @@ type ResponseBody struct {
 }
 
 func CallIssueCommand(command string) (CallIssueCommandResponse, error) {
-	reqUrl := fmt.Sprintf("http://localhost:8080/command?command=%s", command)
+	baseUrl := os.Getenv("BASE_URL")
+
+	reqUrl := fmt.Sprintf("%s/command?command=%s", baseUrl, command)
 	req, err := http.NewRequest(http.MethodPost, reqUrl, nil)
 	if err != nil {
 		return handleReturn("Error", 500, err)

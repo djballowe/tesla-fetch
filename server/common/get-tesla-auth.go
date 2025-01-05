@@ -22,7 +22,7 @@ type Config struct {
 	ClientId     string
 	ClientSecret string
 	Audience     string
-	RedirectUri  string
+	BaseUrl      string
 	Scope        string
 }
 
@@ -37,10 +37,10 @@ func loadEnvConfig() (*Config, error) {
 		ClientId:     os.Getenv("CLIENT_ID"),
 		ClientSecret: os.Getenv("CLIENT_SECRET"),
 		Audience:     os.Getenv("AUDIENCE"),
-		RedirectUri:  os.Getenv("REDIRECT_URI"),
+		BaseUrl:      os.Getenv("BASE_URL"),
 		Scope:        os.Getenv("SCOPES"),
 	}
-	if config.ClientId == "" || config.ClientSecret == "" || config.Audience == "" || config.RedirectUri == "" || config.Scope == "" {
+	if config.ClientId == "" || config.ClientSecret == "" || config.Audience == "" || config.BaseUrl == "" || config.Scope == "" {
 		return nil, fmt.Errorf("Missing environment variables")
 	}
 	return config, nil
@@ -50,6 +50,10 @@ func GetTeslaAuth(writer http.ResponseWriter, req *http.Request) {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/authorize")
 	if err != nil {
 		log.Fatal("Malformed auth url", err)
+	}
+	redirectUrl, err := url.Parse(fmt.Sprintf("%s/callback", baseUrl))
+	if err != nil {
+		log.Fatal("Malformed callback url", err)
 	}
 
 	config, err := loadEnvConfig()
@@ -66,7 +70,7 @@ func GetTeslaAuth(writer http.ResponseWriter, req *http.Request) {
 	authData := map[string]string{
 		"response_type": "code",
 		"client_id":     config.ClientId,
-		"redirect_uri":  config.RedirectUri,
+		"redirect_uri":  redirectUrl.String(),
 		"scope":         config.Scope,
 		"state":         state,
 	}

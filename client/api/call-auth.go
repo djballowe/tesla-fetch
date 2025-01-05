@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 )
@@ -13,10 +14,12 @@ type AuthResponse struct {
 
 func CallAuth() (AuthResponse, error) {
 	authResponse := &AuthResponse{}
+	baseUrl := os.Getenv("BASE_URL")
+	authUrl := fmt.Sprintf("%s/auth", baseUrl)
 
 	notify := make(chan bool, 1)
 
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/auth", nil)
+	req, err := http.NewRequest(http.MethodPost, authUrl, nil)
 	if err != nil {
 		return *authResponse, err
 	}

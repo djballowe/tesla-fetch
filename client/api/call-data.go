@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type VehicleData struct {
@@ -40,9 +41,10 @@ func CallGetVehicleData() (DataResponse, error) {
 	dataResponse := &DataResponse{}
 	var vehicleData VehicleData
 
-	// TODO handle errors better here
+	baseUrl := os.Getenv("BASE_URL")
+	dataEndpoint := fmt.Sprintf("%s/data", baseUrl)
 
-	req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/data", nil)
+	req, err := http.NewRequest(http.MethodGet, dataEndpoint, nil)
 	if err != nil {
 		return DataResponse{
 			StatusCode: 500,
