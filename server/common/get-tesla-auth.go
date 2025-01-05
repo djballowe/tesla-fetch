@@ -140,6 +140,11 @@ func exchangeCodeForToken(code string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+	redirectUrl, err := url.Parse(fmt.Sprintf("%s/callback", baseUrl))
+	if err != nil {
+		log.Fatal("Malformed callback url", err)
+	}
+
 	tokenUrl := baseUrl.String()
 
 	config, err := loadEnvConfig()
@@ -153,7 +158,7 @@ func exchangeCodeForToken(code string) (*Token, error) {
 		"client_secret": config.ClientSecret,
 		"code":          code,
 		"audience":      config.Audience,
-		"redirect_uri":  config.RedirectUri,
+		"redirect_uri":  redirectUrl.String(),
 		"scope":         config.Scope,
 	}
 
