@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/aws/aws-lambda-go v1.47.0 // indirect
 	github.com/cronokirby/saferith v0.33.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
