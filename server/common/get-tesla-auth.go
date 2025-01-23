@@ -1,16 +1,20 @@
 package common
 
 import (
-	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"sync"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/config"
 )
 
 type Token struct {
@@ -103,8 +107,8 @@ func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
 	}
 	storeMutex.Unlock()
 
-	tokens, err := exchangeCodeForToken(code)
-	if err != nil {
+	tokens, err := callAuth(code)
+	if err != nil || tokens == nil {
 		http.Error(writer, "Failed to get auth token", http.StatusInternalServerError)
 		return
 	}
@@ -129,48 +133,43 @@ func AuthCallBack(writer http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func exchangeCodeForToken(code string) (*Token, error) {
-	fmt.Println("Exchanging code for token...")
-
-	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/token")
-	if err != nil {
-		return nil, err
-	}
-	tokenUrl := baseUrl.String()
-
-	config, err := loadEnvConfig()
+func callAuth(code string) (*Token, error) {
+	appUrl := os.Getenv("APP_BASE_URL")
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return nil, err
 	}
 
-	exchangeData := map[string]string{
-		"grant_type":    "authorization_code",
-		"client_id":     config.ClientId,
-		"client_secret": config.ClientSecret,
-		"code":          code,
-		"audience":      config.Audience,
-		"redirect_uri":  config.RedirectUri,
-		"scope":         config.Scope,
-	}
+	client := http.Client{}
+	url := fmt.Sprintf("%s/auth?code=%s", appUrl, code)
 
-	jsonPayload, err := json.Marshal(exchangeData)
+	fmt.Println(url)
+	authRequest, err := http.NewRequest("POST", url, nil)
+	authRequest.Header.Set("Content-Type", "application/json")
+
+	signer := v4.NewSigner()
+	creds, err := cfg.Credentials.Retrieve(context.TODO())
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := http.Post(tokenUrl, "application/json", bytes.NewBuffer(jsonPayload))
+	// hash for an empty payload
+	hash := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+	err = signer.SignHTTP(context.TODO(), creds, authRequest, hash, "execute-api", cfg.Region, time.Now())
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	var tokenResponse Token
-	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
+	response, err := client.Do(authRequest)
+	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
 
-	return &tokenResponse, nil
+	body, _ := io.ReadAll(response.Body)
+	fmt.Println("Response:", string(body))
 
+	return nil, nil
 }
 
 func generateState() string {

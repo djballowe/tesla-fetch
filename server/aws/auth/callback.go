@@ -14,22 +14,12 @@ func callbackHandler(ctx context.Context, event events.APIGatewayProxyRequest) (
 	log.Printf("QueryStringParameters: %+v", event.QueryStringParameters)
 
 	code := event.QueryStringParameters["code"]
-	state := event.QueryStringParameters["state"]
-	prevState := event.QueryStringParameters["prevState"]
 
-	if code == "" || state == "" {
+	if code == "" {
 		log.Println("Missing request data")
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
 			Body:       `{"message: missing required params"}`,
-		}, nil
-	}
-
-	if prevState != state {
-		log.Println("State does not match")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       `{"message: state does not match"}`,
 		}, nil
 	}
 
