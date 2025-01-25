@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -169,7 +170,14 @@ func callAuth(code string) (*Token, error) {
 	body, _ := io.ReadAll(response.Body)
 	fmt.Println("Response:", string(body))
 
-	return nil, nil
+	var tokens Token
+
+	err = json.Unmarshal(body, &tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tokens, nil
 }
 
 func generateState() string {
