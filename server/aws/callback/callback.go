@@ -1,19 +1,12 @@
-package callback 
+package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"os"
-	"time"
+	awshelpers "tesla-app/server/aws/helpers"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/aws/aws-sdk-go-v2/config"
 )
 
 type Token struct {
@@ -43,9 +36,9 @@ func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 	// }
 	// storeMutex.Unlock()
 
-	tokens, err := callAuth(code)
+	tokens, err := awshelpers.ExchangeCodeForToken(code)
 	if err != nil || tokens == nil {
-		log.Println("Missing tokens")
+		log.Printf("Error missing tokens: %s", err)
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
 			Body:       `{"message: missing tokens"}`,
@@ -80,52 +73,6 @@ func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 		},
 		Body: "Success",
 	}, nil
-}
-
-func callAuth(code string) (*Token, error) {
-	appUrl := os.Getenv("APP_BASE_URL")
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-
-	client := http.Client{}
-	url := fmt.Sprintf("%s/auth?code=%s", appUrl, code)
-
-	fmt.Println(url)
-	authRequest, err := http.NewRequest("POST", url, nil)
-	authRequest.Header.Set("Content-Type", "application/json")
-
-	signer := v4.NewSigner()
-	creds, err := cfg.Credentials.Retrieve(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-
-	// hash for an empty payload
-	hash := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-	err = signer.SignHTTP(context.TODO(), creds, authRequest, hash, "execute-api", cfg.Region, time.Now())
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := client.Do(authRequest)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	body, _ := io.ReadAll(response.Body)
-	fmt.Println("Response:", string(body))
-
-	var tokens Token
-
-	err = json.Unmarshal(body, &tokens)
-	if err != nil {
-		return nil, err
-	}
-
-	return &tokens, nil
 }
 
 func main() {
