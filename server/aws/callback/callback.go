@@ -1,21 +1,31 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
-	"net/http"
-	"os"
 	awshelpers "tesla-app/server/aws/helpers"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-type Token struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+var dynamoDBClient *dynamodb.Client
+var tableName = "token_store"
+
+func init() {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		panic("unable to load aws config")
+	}
+
+	dynamoDBClient = dynamodb.NewFromConfig(cfg)
 }
 
 func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -33,36 +43,35 @@ func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 		return handleReturn("missing tokens", 500, err)
 	}
 
-	token := Token{
+	token := awshelpers.Token{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
+		IdToken:      tokens.IdToken,
+		State:        tokens.State,
+		ExpiresIn:    tokens.ExpiresIn,
+		TokenType:    tokens.TokenType,
 	}
 	log.Println(token)
 	log.Println("Auth successful")
 
-	passTokenUrl := os.Getenv("TOKEN_URL")
-	log.Println(passTokenUrl)
+	now := time.Now().UTC()
 
-	client := &http.Client{}
-
-	payload, err := json.Marshal(token)
-	if err != nil {
-		log.Printf("Could not marshal JSON payload: %s", err)
-		return handleReturn("could not marshal JSON payload", 500, err)
+	item := map[string]types.AttributeValue{
+		"access_token":  &types.AttributeValueMemberS{Value: token.AccessToken},
+		"refresh_token": &types.AttributeValueMemberS{Value: token.RefreshToken},
+		"id_token":      &types.AttributeValueMemberS{Value: token.IdToken},
+		"state":         &types.AttributeValueMemberS{Value: token.State},
+		"expire_in":     &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", token.ExpiresIn)},
+		"token_type":    &types.AttributeValueMemberS{Value: token.TokenType},
+		"created_at":    &types.AttributeValueMemberS{Value: now.Format(time.RFC3339)},
 	}
 
-	req, err := http.NewRequest("POST", passTokenUrl, bytes.NewBuffer(payload))
-	if err != nil {
-		log.Printf("Could not create token url: %s", err)
-		return handleReturn("could not create token url", 500, err)
-	}
+	dbResp, err := dynamoDBClient.PutItem(ctx, &dynamodb.PutItemInput{
+		TableName: aws.String(tableName),
+		Item:      item,
+	})
 
-	response, err := client.Do(req)
-	if err != nil {
-		log.Printf("could not get token post response: %s", err)
-		return handleReturn("could not get token post response", 500, err)
-	}
-	defer response.Body.Close()
+	log.Println("dbResp: ", dbResp)
 
 	return handleReturn("Auth successful", 200, err)
 }
