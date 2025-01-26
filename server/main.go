@@ -17,6 +17,7 @@ func main() {
 
 	// Auth
 	http.HandleFunc("/auth", common.GetTeslaAuth)
+	http.HandleFunc("/tokens", common.GetTokens)
 	// http.HandleFunc("/callback", common.AuthCallBack)
 
 	// Data

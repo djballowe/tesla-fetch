@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"sync"
-
 	// "context"
 	// "encoding/json"
 	// "time"
@@ -18,11 +16,6 @@ import (
 	// "github.com/aws/aws-sdk-go-v2/config"
 )
 
-type Token struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-}
-
 type Config struct {
 	ClientId     string
 	ClientSecret string
@@ -30,12 +23,6 @@ type Config struct {
 	RedirectUri  string
 	Scope        string
 }
-
-var (
-	stateStore string
-	tokenStore = make(map[string]Token)
-	storeMutex sync.Mutex
-)
 
 func loadEnvConfig() (*Config, error) {
 	config := &Config{
@@ -184,18 +171,4 @@ func generateState() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return base64.URLEncoding.EncodeToString(b)
-}
-
-func GetTokenStore() (map[string]Token, string) {
-	fmt.Println("Getting Token Store")
-	storeMutex.Lock()
-	defer storeMutex.Unlock()
-	copyStore := make(map[string]Token)
-	stateCopy := stateStore
-
-	for k, v := range tokenStore {
-		copyStore[k] = v
-	}
-
-	return copyStore, stateCopy
 }

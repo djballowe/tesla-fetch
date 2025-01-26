@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"log"
+	"net/http"
+	"os"
 	awshelpers "tesla-app/server/aws/helpers"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -18,61 +22,60 @@ func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 	log.Printf("QueryStringParameters: %+v", event.QueryStringParameters)
 	code := event.QueryStringParameters["code"]
 
-	// authStatus := false
 	if code == "" {
 		log.Println("Missing request data")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       `{"message: missing required params"}`,
-		}, nil
+		return handleReturn("missing required params", 500, nil)
 	}
-
-	// storeMutex.Lock()
-	// storedState := stateStore
-	// fmt.Println(storedState, "||", state)
-	// if storedState != state {
-	// 	http.Error(writer, "State does not match", http.StatusBadRequest)
-	// 	return
-	// }
-	// storeMutex.Unlock()
 
 	tokens, err := awshelpers.ExchangeCodeForToken(code)
 	if err != nil || tokens == nil {
 		log.Printf("Error missing tokens: %s", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       `{"message: missing tokens"}`,
-		}, nil
+		return handleReturn("missing tokens", 500, err)
 	}
 
-	// storeMutex.Lock()
 	token := Token{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
 	}
-	// tokenStore[state] = token
-	// storeMutex.Unlock()
-
-	// fmt.Fprintf(writer, "Auth successful\n")
 	log.Println(token)
 	log.Println("Auth successful")
-	// authStatus = true
 
-	// notifyClientUrl := fmt.Sprintf("http://localhost:3000/notify?auth_status=%t", authStatus)
+	passTokenUrl := os.Getenv("TOKEN_URL")
+	log.Println(passTokenUrl)
 
-	// _, err = http.Post(notifyClientUrl, "application/x-www-form-urlencoded", nil)
-	// if err != nil {
-	// 	http.Error(writer, fmt.Sprintf("Failed to update the client of auth status: %s", err.Error()), http.StatusInternalServerError)
-	// 	return
-	// }
+	client := &http.Client{}
 
+	payload, err := json.Marshal(token)
+	if err != nil {
+		log.Printf("Could not marshal JSON payload: %s", err)
+		return handleReturn("could not marshal JSON payload", 500, err)
+	}
+
+	req, err := http.NewRequest("POST", passTokenUrl, bytes.NewBuffer(payload))
+	if err != nil {
+		log.Printf("Could not create token url: %s", err)
+		return handleReturn("could not create token url", 500, err)
+	}
+
+	response, err := client.Do(req)
+	if err != nil {
+		log.Printf("could not get token post response: %s", err)
+		return handleReturn("could not get token post response", 500, err)
+	}
+	defer response.Body.Close()
+
+	return handleReturn("Auth successful", 200, err)
+}
+
+func handleReturn(message string, statusCode int, err error) (events.APIGatewayProxyResponse, error) {
+	msg, _ := json.Marshal(map[string]string{"message": message})
 	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
+		StatusCode: statusCode,
 		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},
-		Body: "Success",
-	}, nil
+		Body: string(msg),
+	}, err
 }
 
 func main() {
