@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	awshelpers "tesla-app/server/aws/helpers"
@@ -34,25 +33,30 @@ func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 
 	if code == "" {
 		log.Println("Missing request data")
-		return handleReturn("missing required params", 500, nil)
+		return awshelpers.HandleAwsReturn("missing required params", 500, nil)
 	}
 
 	tokens, err := awshelpers.ExchangeCodeForToken(code)
 	if err != nil || tokens == nil {
 		log.Printf("Error missing tokens: %s", err)
-		return handleReturn("missing tokens", 500, err)
+		return awshelpers.HandleAwsReturn("missing tokens", 500, err)
+	}
+
+	accessTokenEncrypt, err := awshelpers.EncryptKey(tokens.AccessToken)
+	refreshTokenEncrypt, err := awshelpers.EncryptKey(tokens.RefreshToken)
+	idTokenEncrypt, err := awshelpers.EncryptKey(tokens.IdToken)
+	if err != nil {
+		return awshelpers.HandleAwsReturn("could not encrypt tokens", 500, err)
 	}
 
 	token := awshelpers.Token{
-		AccessToken:  tokens.AccessToken,
-		RefreshToken: tokens.RefreshToken,
-		IdToken:      tokens.IdToken,
+		AccessToken:  accessTokenEncrypt,
+		RefreshToken: refreshTokenEncrypt,
+		IdToken:      idTokenEncrypt,
 		State:        tokens.State,
 		ExpiresIn:    tokens.ExpiresIn,
 		TokenType:    tokens.TokenType,
 	}
-	log.Println(token)
-	log.Println("Auth successful")
 
 	now := time.Now().UTC()
 
@@ -66,25 +70,12 @@ func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 		"created_at":    &types.AttributeValueMemberS{Value: now.Format(time.RFC3339)},
 	}
 
-	dbResp, err := dynamoDBClient.PutItem(ctx, &dynamodb.PutItemInput{
+	_, err = dynamoDBClient.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(tableName),
 		Item:      item,
 	})
 
-	log.Println("dbResp: ", dbResp)
-
-	return handleReturn("Auth successful", 200, err)
-}
-
-func handleReturn(message string, statusCode int, err error) (events.APIGatewayProxyResponse, error) {
-	msg, _ := json.Marshal(map[string]string{"message": message})
-	return events.APIGatewayProxyResponse{
-		StatusCode: statusCode,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-		Body: string(msg),
-	}, err
+	return awshelpers.HandleAwsReturn("tokens store successful", 200, err)
 }
 
 func main() {
