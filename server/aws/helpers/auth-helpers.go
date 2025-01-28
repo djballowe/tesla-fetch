@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 )
@@ -16,6 +17,10 @@ import (
 type Token struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
+	IdToken      string `json:"id_token"`
+	State        string `json:"state"`
+	ExpiresIn    int    `json:"expires_in"`
+	TokenType    string `json:"token_type"`
 }
 
 type Secrets struct {
@@ -90,4 +95,15 @@ func ExchangeCodeForToken(code string) (*Token, error) {
 	}
 
 	return &tokenResponse, nil
+}
+
+func HandleAwsReturn(message string, statusCode int, err error) (events.APIGatewayProxyResponse, error) {
+	msg, _ := json.Marshal(map[string]string{"message": message})
+	return events.APIGatewayProxyResponse{
+		StatusCode: statusCode,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: string(msg),
+	}, err
 }
