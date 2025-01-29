@@ -11,14 +11,19 @@ import (
 )
 
 var keyArn = "arn:aws:kms:us-east-1:957015889457:key/d7e1ec89-9186-48b9-98d9-c7d9b9d216d2"
+var awsCfg aws.Config
 
-func EncryptKey(token string) (string, error) {
+func init() {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		return "", fmt.Errorf("failed to load AWS config: %v", err)
+		panic("failed to load aws config")
 	}
 
-	client := kms.NewFromConfig(cfg)
+	awsCfg = cfg
+}
+
+func EncryptKey(token string) (string, error) {
+	client := kms.NewFromConfig(awsCfg)
 
 	encryptInput := &kms.EncryptInput{
 		KeyId:     aws.String(keyArn),
@@ -31,5 +36,25 @@ func EncryptKey(token string) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(result.CiphertextBlob), nil
+}
+
+func DecryptKey(encryptedToken string) (string, error) {
+	client := kms.NewFromConfig(awsCfg)
+
+	token, err := base64.StdEncoding.DecodeString(encryptedToken)
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt: %v", err)
+	}
+
+	decryptInput := &kms.DecryptInput{
+		CiphertextBlob: token,
+	}
+
+	result, err := client.Decrypt(context.TODO(), decryptInput)
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt: %v", err)
+	}
+
+	return string(result.Plaintext), nil
 }
 
