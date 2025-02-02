@@ -1,17 +1,27 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"sync"
 	"tesla-app/client/draw-status"
 	postcommand "tesla-app/client/post-command"
 	"tesla-app/client/ui"
 	data "tesla-app/client/vehicle-data"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	args := os.Args
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("error: %v", err)
+		return
+	}
 
 	switch len(args) {
 	case 1:
@@ -21,7 +31,7 @@ func main() {
 		setCommand(args[1])
 		break
 	default:
-		fmt.Println("error: can only issue one command")
+		log.Fatalf("error: %v", errors.New("can only issue one command"))
 	}
 
 	return

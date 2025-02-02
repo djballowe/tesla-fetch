@@ -1,8 +1,8 @@
 package data
 
 import (
-	"errors"
-	"fmt"
+	// "errors"
+	// "fmt"
 	"tesla-app/client/api"
 )
 
@@ -15,33 +15,40 @@ func GetVehicleData(done chan struct{}, dataChan chan DataResult, statusChan cha
 	statusChan <- "Fetching vehicle data"
 	defer close(done)
 	defer close(statusChan)
-	carDataResponse, error := api.CallGetVehicleData()
-	if error != nil {
+
+	authResponse, error := api.CallAuth()
+	if error != nil || authResponse.StatusCode != 200 {
 		dataChan <- DataResult{Err: error}
 		return
 	}
 
-	if carDataResponse.StatusCode == 401 {
-		statusChan <- "Fetching authentication"
-		authResponse, error := api.CallAuth()
-		if error != nil || authResponse.StatusCode != 200 {
-			dataChan <- DataResult{Err: error}
-			return
-		}
+	// carDataResponse, error := api.CallGetVehicleData()
+	// if error != nil {
+	// 	dataChan <- DataResult{Err: error}
+	// 	return
+	// }
+	//
+	// if carDataResponse.StatusCode == 401 {
+	// 	statusChan <- "Fetching authentication"
+	// 	authResponse, error := api.CallAuth()
+	// 	if error != nil || authResponse.StatusCode != 200 {
+	// 		dataChan <- DataResult{Err: error}
+	// 		return
+	// 	}
+	//
+	// 	statusChan <- "Fetching vehicle data"
+	// 	carDataResponse, error = api.CallGetVehicleData()
+	// 	if error != nil {
+	// 		dataChan <- DataResult{Err: error}
+	// 		return
+	// 	}
+	// }
+	//
+	// if carDataResponse.StatusCode != 200 {
+	// 	error = errors.New(fmt.Sprintf("Error gathering vehicle data: Status Code %d", carDataResponse.StatusCode))
+	// 	dataChan <- DataResult{Err: error}
+	// 	return
+	// }
 
-		statusChan <- "Fetching vehicle data"
-		carDataResponse, error = api.CallGetVehicleData()
-		if error != nil {
-			dataChan <- DataResult{Err: error}
-			return
-		}
-	}
-
-	if carDataResponse.StatusCode != 200 {
-		error = errors.New(fmt.Sprintf("Error gathering vehicle data: Status Code %d", carDataResponse.StatusCode))
-		dataChan <- DataResult{Err: error}
-		return
-	}
-
-	dataChan <- DataResult{VehicleData: carDataResponse.Body, Err: nil}
+	// dataChan <- DataResult{VehicleData: carDataResponse.Body, Err: nil}
 }
