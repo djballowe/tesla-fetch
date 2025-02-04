@@ -1,8 +1,9 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
+	//	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -11,6 +12,10 @@ import (
 
 type AuthResponse struct {
 	StatusCode int
+}
+
+type CallbackResponse struct {
+	CallbackUrl string `json:"callback_url"`
 }
 
 func CallAuth() (AuthResponse, error) {
@@ -32,12 +37,14 @@ func CallAuth() (AuthResponse, error) {
 	if err != nil {
 		return *authResponse, err
 	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
+
+	var callbackResponse CallbackResponse
+
+	if err := json.NewDecoder(resp.Body).Decode(&callbackResponse); err != nil {
 		return *authResponse, err
 	}
 
-	fmt.Println("resp body: ", string(body))
+	fmt.Println(callbackResponse.CallbackUrl)
 
 	return AuthResponse{
 		StatusCode: 200,
