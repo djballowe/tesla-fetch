@@ -20,19 +20,13 @@ func CallAuth() (AuthResponse, error) {
 	authUrl := fmt.Sprintf("%s/auth", baseUrl)
 	key := os.Getenv("API_KEY")
 
-	// notify := make(chan bool, 1)
-
 	req, err := http.NewRequest("GET", authUrl, nil)
 	if err != nil {
 		return *authResponse, err
 	}
 	req.Header.Add("x-api-key", key)
 
-	client := http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
+	client := http.Client{}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -43,32 +37,11 @@ func CallAuth() (AuthResponse, error) {
 		return *authResponse, err
 	}
 
-	redirectUrl := resp.Header.Get("Location")
-	openBrowser(redirectUrl)
-
-	// app waits for notification from callback route
-	// buildNotificationServer(notify)
-	// <-notify
-
 	fmt.Println("resp body: ", string(body))
 
 	return AuthResponse{
 		StatusCode: 200,
 	}, nil
-}
-
-func buildNotificationServer(notify chan bool) {
-	http.HandleFunc("/notify", func(writer http.ResponseWriter, resp *http.Request) {
-		notify <- true
-	})
-	go func() {
-		err := http.ListenAndServe(":3000", nil)
-		if err != nil {
-			fmt.Println("Error starting notify server")
-		}
-	}()
-
-	return
 }
 
 func openBrowser(url string) {
