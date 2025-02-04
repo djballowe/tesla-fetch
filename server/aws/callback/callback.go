@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	awshelpers "tesla-app/server/aws/helpers"
 
@@ -33,9 +34,28 @@ func authCallback(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 		TokenType:    tokens.TokenType,
 	}
 
-	log.Println(token)
+	body, err := json.Marshal(token)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Error creating response",
+		}, err
+	}
 
-	return awshelpers.HandleAwsReturn("tokens store successful", 200, err)
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Headers: map[string]string{
+			"Content-Type":              "application/json",
+			"Cache-Control":             "no-store",
+			"Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+			"X-Content-Type-Options":    "nosniff",
+			"X-Frame-Options":           "DENY",
+			"Content-Security-Policy":   "default-src 'none'",
+			"X-XSS-Protection":          "1; mode=block",
+		},
+		Body:            string(body),
+		IsBase64Encoded: false,
+	}, nil
 }
 
 func main() {
