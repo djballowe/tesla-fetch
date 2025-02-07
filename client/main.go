@@ -2,16 +2,24 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sync"
 	"tesla-app/client/draw-status"
 	postcommand "tesla-app/client/post-command"
 	"tesla-app/client/ui"
 	data "tesla-app/client/vehicle-data"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	args := os.Args
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	switch len(args) {
 	case 1:
@@ -42,22 +50,14 @@ func setGetData() {
 
 	done := make(chan struct{})
 	dataChan := make(chan data.DataResult)
-	statusChan := make(chan string)
 
 	go func() {
 		defer group.Done()
-		data.GetVehicleData(done, dataChan, statusChan)
+		data.GetVehicleData(done, dataChan)
 	}()
 
 	go func() {
 		ui.LoadingSpinner(done)
-	}()
-
-	go func() {
-		for status := range statusChan {
-			fmt.Printf("\r%s\r\033[2C", "                           ")
-			fmt.Printf("%s", status)
-		}
 	}()
 
 	res := <-dataChan
