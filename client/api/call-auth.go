@@ -1,24 +1,30 @@
 package api
 
 import (
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 )
 
 type AuthResponse struct {
-	StatusCode int
+	CallbackUrl string `json:"callback_url"`
 }
 
-func CallAuth() (AuthResponse, error) {
-	authResponse := &AuthResponse{}
+func CallAuth() error {
+	baseUrl := os.Getenv("BASE_URL")
+	authUrl := fmt.Sprintf("%s/auth", baseUrl)
+	key := os.Getenv("API_KEY")
 
-	notify := make(chan bool, 1)
+	// go back to localhost auth but close it as soon as you're done
 
 	req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/auth", nil)
 	if err != nil {
-		return *authResponse, err
+		return err
 	}
 
 	client := http.Client{
@@ -29,19 +35,38 @@ func CallAuth() (AuthResponse, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return *authResponse, err
+		return err
 	}
 
-	redirectUrl := resp.Header.Get("Location")
-	openBrowser(redirectUrl)
+	var authResponse AuthResponse
 
-	// app waits for notification from callback route
-	buildNotificationServer(notify)
-	<-notify
+	if err := json.NewDecoder(resp.Body).Decode(&authResponse); err != nil {
+		return err
+	}
 
-	return AuthResponse{
-		StatusCode: 200,
-	}, nil
+	fmt.Println(authResponse.CallbackUrl)
+
+	openBrowser(authResponse.CallbackUrl)
+
+	// callbackResp, err := http.Get(authResponse.CallbackUrl)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// body, err := io.ReadAll(callbackResp.Body)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Println(string(body))
+
+	return nil
+}
+
+func generateState() string {
+	b := make([]byte, 16)
+	rand.Read(b)
+	return base64.URLEncoding.EncodeToString(b)
 }
 
 func buildNotificationServer(notify chan bool) {

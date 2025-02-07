@@ -13,8 +13,8 @@ func PostCommand(command string) error {
 	}
 
 	if response.StatusCode == 401 {
-		authResp, err := api.CallAuth()
-		if err != nil || authResp.StatusCode != 200 {
+		err := api.CallAuth()
+		if err != nil {
 			return err
 		}
 
