@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net"
+	"sync"
 	"time"
 
 	// "encoding/json"
@@ -40,6 +41,12 @@ type Token struct {
 	TokenType    string `json:"token_type"`
 }
 
+var (
+	stateStore string
+	tokenStore = make(map[string]Token)
+	storeMutex sync.Mutex
+)
+
 func loadEnvConfig() (*Config, error) {
 	config := &Config{
 		ClientId:     os.Getenv("CLIENT_ID"),
@@ -68,9 +75,9 @@ func CallAuth() error {
 	}
 
 	state := generateState()
-	// storeMute.Lock()
-	// stateStore = state
-	// storeMutex.Unlock()
+	storeMutex.Lock()
+	stateStore = state
+	storeMutex.Unlock()
 
 	authData := map[string]string{
 		"response_type": "code",
@@ -92,7 +99,10 @@ func CallAuth() error {
 		log.Fatalf("Could not start callback server: %s", err)
 		return err
 	}
-	fmt.Println(tokens.AccessToken)
+
+	tokenStore[state] = *tokens
+
+	log.Println("Tokens stored successful")
 
 	return nil
 }
@@ -222,4 +232,18 @@ func openBrowser(url string) error {
 	}
 
 	return nil
+}
+
+func GetTokenStore() (map[string]Token, string) {
+	fmt.Println("Getting Token Store")
+	storeMutex.Lock()
+	defer storeMutex.Unlock()
+	copyStore := make(map[string]Token)
+	stateCopy := stateStore
+
+	for k, v := range tokenStore {
+		copyStore[k] = v
+	}
+
+	return copyStore, stateCopy
 }

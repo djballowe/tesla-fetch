@@ -48,25 +48,11 @@ func setGetData() {
 	var group sync.WaitGroup
 	group.Add(1)
 
-	done := make(chan struct{})
-	dataChan := make(chan data.DataResult)
-
-	go func() {
-		defer group.Done()
-		data.GetVehicleData(done, dataChan)
-	}()
+	data := data.GetVehicleData()
 
 	// go func() {
 	// 	ui.LoadingSpinner(done)
 	// }()
-
-	res := <-dataChan
-	group.Wait()
-
-	if res.Err != nil {
-		fmt.Printf("error: %s\n", res.Err.Error())
-		return
-	}
 
 	fmt.Printf("\r%s", "                                         ")
 	drawlogo.DrawStatus(res.VehicleData)

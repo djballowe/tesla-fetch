@@ -11,11 +11,11 @@ type DataResult struct {
 	Err         error
 }
 
-func GetVehicleData(done chan struct{}, dataChan chan DataResult) {
-	defer close(done)
+func GetVehicleData() (DataResult, error) {
+	var dataResult = DataResult{}
 	carDataResponse, err := api.CallGetVehicleData()
 	if err != nil {
-		dataChan <- DataResult{Err: err}
+		return dataResult, nil
 	}
 
 	err = api.CallAuth()
@@ -46,5 +46,5 @@ func GetVehicleData(done chan struct{}, dataChan chan DataResult) {
 	// 	return
 	// }
 	//
-	dataChan <- DataResult{VehicleData: carDataResponse.Body, Err: nil}
+	return dataResult, nil
 }
