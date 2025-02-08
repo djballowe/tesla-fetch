@@ -2,10 +2,12 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"net"
+	"time"
 
 	// "encoding/json"
 	"fmt"
@@ -55,16 +57,18 @@ func loadEnvConfig() (*Config, error) {
 func CallAuth() error {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/authorize")
 	if err != nil {
-		log.Fatal("Malformed auth url", err)
+		log.Fatalf("Malformed auth url: %s", err)
+		return err
 	}
 
 	config, err := loadEnvConfig()
 	if err != nil {
-		log.Fatal("Failed to load config: ", err)
+		log.Fatalf("Failed to load config: %s", err)
+		return err
 	}
 
 	state := generateState()
-	// storeMutex.Lock()
+	// storeMute.Lock()
 	// stateStore = state
 	// storeMutex.Unlock()
 
@@ -83,44 +87,12 @@ func CallAuth() error {
 
 	baseUrl.RawQuery = params.Encode()
 	authUrl := baseUrl.String()
-	openBrowser(authUrl)
-
-	// req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/auth", nil)
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// client := http.Client{
-	// 	CheckRedirect: func(req *http.Request, via []*http.Request) error {
-	// 		return http.ErrUseLastResponse
-	// 	},
-	// }
-	//
-	// resp, err := client.Do(req)
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// var authResponse AuthResponse
-	//
-	// if err := json.NewDecoder(resp.Body).Decode(&authResponse); err != nil {
-	// 	return err
-	// }
-	//
-	// fmt.Println(authResponse.CallbackUrl)
-	//
-
-	// callbackResp, err := http.Get(authResponse.CallbackUrl)
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// body, err := io.ReadAll(callbackResp.Body)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// fmt.Println(string(body))
+	tokens, err := startServer(authUrl)
+	if err != nil {
+		log.Fatalf("Could not start callback server: %s", err)
+		return err
+	}
+	fmt.Println(tokens.AccessToken)
 
 	return nil
 }
@@ -128,36 +100,57 @@ func CallAuth() error {
 var tokenChan = make(chan *Token)
 var errChan = make(chan error)
 
-func startServer() error {
-	listener, err := net.Listen("tcp", "localhost:0")
+func startServer(authUrl string) (*Token, error) {
+	listener, err := net.Listen("tcp", "localhost:8080")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer listener.Close()
-
-	port := listener.Addr().(*net.TCPAddr).Port
-	callbackURL := fmt.Sprintf("http://localhost:%d/callback", port)
 
 	server := &http.Server{
 		Handler: http.HandlerFunc(callback),
 	}
 
+	go server.Serve(listener)
+	log.Println("callback server started...")
+	err = openBrowser(authUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	select {
+	case tokens := <-tokenChan:
+		server.Shutdown(context.Background())
+		return tokens, nil
+	case err := <-errChan:
+		server.Shutdown(context.Background())
+		return nil, err
+	case <-time.After(5 * time.Minute):
+		server.Shutdown(context.Background())
+		return nil, fmt.Errorf("authentication timed out")
+	}
 }
 
 func callback(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/callback" {
+		http.Error(w, "path not found", http.StatusNotFound)
+		return
+	}
+
 	code := r.URL.Query().Get("code")
 	state := r.URL.Query().Get("state")
 	log.Println(state)
 
 	tokens, err := exchangeCodeForToken(code)
 	if err != nil {
-		log.Fatalf("error exchanging code for token: ", err)
+		log.Fatalf("error exchanging code for token: %s", err)
 		errChan <- err
+		return
 	}
 
 	w.Write([]byte("Authentication successful! You can close this window."))
 	tokenChan <- tokens
-	// verify the state is the same need store state
+	return
 }
 
 // helpers
@@ -211,7 +204,7 @@ func generateState() string {
 	return base64.URLEncoding.EncodeToString(b)
 }
 
-func openBrowser(url string) {
+func openBrowser(url string) error {
 	var err error
 
 	switch runtime.GOOS {
@@ -227,4 +220,6 @@ func openBrowser(url string) {
 	if err != nil {
 		fmt.Println("Failed to open browser:", err)
 	}
+
+	return nil
 }

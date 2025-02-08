@@ -7,7 +7,7 @@ import (
 	"sync"
 	"tesla-app/client/draw-status"
 	postcommand "tesla-app/client/post-command"
-	"tesla-app/client/ui"
+	//	"tesla-app/client/ui"
 	data "tesla-app/client/vehicle-data"
 
 	"github.com/joho/godotenv"
@@ -56,9 +56,9 @@ func setGetData() {
 		data.GetVehicleData(done, dataChan)
 	}()
 
-	go func() {
-		ui.LoadingSpinner(done)
-	}()
+	// go func() {
+	// 	ui.LoadingSpinner(done)
+	// }()
 
 	res := <-dataChan
 	group.Wait()
