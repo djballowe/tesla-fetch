@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"tesla-app/client/api"
+	"tesla-app/client/auth"
 )
 
 func PostCommand(command string) error {
@@ -13,7 +14,7 @@ func PostCommand(command string) error {
 	}
 
 	if response.StatusCode == 401 {
-		err := api.CallAuth()
+		err := auth.CallAuth()
 		if err != nil {
 			return err
 		}
