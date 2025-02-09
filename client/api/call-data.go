@@ -1,10 +1,9 @@
 package api
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -332,29 +331,6 @@ type VehicleResponse struct {
 	} `json:"response"`
 }
 
-type ApiResponse struct {
-	State                string  `json:"state"`
-	BatteryLevel         int     `json:"battery_level"`
-	BatteryRange         float64 `json:"battery_range"`
-	ChargeRate           float64 `json:"charge_rate"`
-	ChargingState        string  `json:"charging_state"`
-	ChargeLimitSoc       int     `json:"charge_limit_soc"`
-	MinutesToFullCharge  int     `json:"minutes_to_full_charge"`
-	TimeToFullCharge     float64 `json:"time_to_full_charge"`
-	InsideTemp           int     `json:"inside_temp"`
-	PassengerTempSetting float64 `json:"passenger_temp_setting"`
-	DriverTempSetting    float64 `json:"driver_temp_setting"`
-	IsClimateOn          bool    `json:"is_climate_on"`
-	IsPreconditioning    bool    `json:"is_preconditioning"`
-	OutsideTemp          int     `json:"outside_temp"`
-	Locked               bool    `json:"locked"`
-	Odometer             int     `json:"odometer"`
-	Color                string  `json:"exterior_color"`
-	VehicleName          string  `json:"vehicle_name"`
-	CarType              string  `json:"car_type"`
-	CarSpecialType       string  `json:"car_special_type"`
-}
-
 func CallGetVehicleData() (*VehicleData, error) {
 	tokenStore, state := helpers.GetTokenStore()
 	if state == "" || tokenStore[state].AccessToken == "" {
@@ -363,7 +339,7 @@ func CallGetVehicleData() (*VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
-	var vehicleData = &VehicleData{}
+	var apiResponse = &VehicleResponse{}
 
 	// vehicleState, err := vehicle.VehicleState()
 	// if err != nil {
@@ -399,24 +375,37 @@ func CallGetVehicleData() (*VehicleData, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	if res.StatusCode != 200 {
 		return nil, errors.New("Failed to get vehicle data")
 	}
 
-	// var responseBody VehicleResponse
-	//
-	// err = json.Unmarshal(body, &responseBody)
-	// if err != nil {
-	// 	return vehicleData, err
-	// }
+	err = json.NewDecoder(res.Body).Decode(&apiResponse)
+	if err != nil {
+		return nil, err
+	}
 
-	log.Println("Status: ", res.Status, res.StatusCode)
-	log.Println("Body: ", body)
+	vehicleData := &VehicleData{
+		State:                apiResponse.Response.State,
+		BatteryLevel:         apiResponse.Response.ChargeState.BatteryLevel,
+		BatteryRange:         apiResponse.Response.ChargeState.BatteryRange,
+		ChargeRate:           apiResponse.Response.ChargeState.ChargeRate,
+		ChargingState:        apiResponse.Response.ChargeState.ChargingState,
+		ChargeLimitSoc:       apiResponse.Response.ChargeState.ChargeLimitSoc,
+		MinutesToFullCharge:  apiResponse.Response.ChargeState.MinutesToFullCharge,
+		TimeToFullCharge:     apiResponse.Response.ChargeState.TimeToFullCharge,
+		InsideTemp:           int(apiResponse.Response.ClimateState.InsideTemp),
+		PassengerTempSetting: apiResponse.Response.ClimateState.PassengerTempSetting,
+		DriverTempSetting:    apiResponse.Response.ClimateState.DriverTempSetting,
+		IsClimateOn:          apiResponse.Response.ClimateState.IsClimateOn,
+		IsPreconditioning:    apiResponse.Response.ClimateState.IsPreconditioning,
+		OutsideTemp:          int(apiResponse.Response.ClimateState.OutsideTemp),
+		Locked:               apiResponse.Response.VehicleState.Locked,
+		Odometer:             int(apiResponse.Response.VehicleState.Odometer),
+		Color:                apiResponse.Response.Color,
+		VehicleName:          apiResponse.Response.VehicleState.VehicleName,
+		CarType:              apiResponse.Response.VehicleState.CarVersion,
+		CarSpecialType:       apiResponse.Response.VehicleConfig.CarSpecialType,
+	}
 
 	return vehicleData, nil
 }
