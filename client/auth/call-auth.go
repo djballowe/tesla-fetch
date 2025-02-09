@@ -1,4 +1,4 @@
-package api
+package auth
 
 import (
 	"bytes"
@@ -42,9 +42,9 @@ type Token struct {
 }
 
 var (
-	stateStore string
-	tokenStore = make(map[string]Token)
-	storeMutex sync.Mutex
+	StateStore string
+	TokenStore = make(map[string]Token)
+	StoreMutex sync.Mutex
 )
 
 func loadEnvConfig() (*Config, error) {
@@ -75,9 +75,9 @@ func CallAuth() error {
 	}
 
 	state := generateState()
-	storeMutex.Lock()
-	stateStore = state
-	storeMutex.Unlock()
+	StoreMutex.Lock()
+	StateStore = state
+	StoreMutex.Unlock()
 
 	authData := map[string]string{
 		"response_type": "code",
@@ -100,7 +100,7 @@ func CallAuth() error {
 		return err
 	}
 
-	tokenStore[state] = *tokens
+	TokenStore[state] = *tokens
 
 	log.Println("Tokens stored successful")
 
@@ -232,18 +232,4 @@ func openBrowser(url string) error {
 	}
 
 	return nil
-}
-
-func GetTokenStore() (map[string]Token, string) {
-	fmt.Println("Getting Token Store")
-	storeMutex.Lock()
-	defer storeMutex.Unlock()
-	copyStore := make(map[string]Token)
-	stateCopy := stateStore
-
-	for k, v := range tokenStore {
-		copyStore[k] = v
-	}
-
-	return copyStore, stateCopy
 }

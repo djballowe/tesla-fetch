@@ -3,7 +3,9 @@ package data
 import (
 	// "errors"
 	// "fmt"
+	"log"
 	"tesla-app/client/api"
+	"tesla-app/client/auth"
 )
 
 type DataResult struct {
@@ -15,10 +17,11 @@ func GetVehicleData() (DataResult, error) {
 	var dataResult = DataResult{}
 	carDataResponse, err := api.CallGetVehicleData()
 	if err != nil {
-		return dataResult, nil
+		return dataResult, err
 	}
+	log.Println("car data response: ", carDataResponse)
 
-	err = api.CallAuth()
+	return dataResult, nil
 	// if err != nil {
 	// 	dataChan <- DataResult{Err: err}
 	// 	return
@@ -46,5 +49,4 @@ func GetVehicleData() (DataResult, error) {
 	// 	return
 	// }
 	//
-	return dataResult, nil
 }

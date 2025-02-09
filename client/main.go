@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"sync"
-	"tesla-app/client/draw-status"
+	//"tesla-app/client/draw-status"
 	postcommand "tesla-app/client/post-command"
 	//	"tesla-app/client/ui"
 	data "tesla-app/client/vehicle-data"
@@ -48,14 +48,18 @@ func setGetData() {
 	var group sync.WaitGroup
 	group.Add(1)
 
-	data := data.GetVehicleData()
+	_, err := data.GetVehicleData()
+	if err != nil {
+		log.Fatalf("Could not get vehicle data: %s", err)
+	}
+
 
 	// go func() {
 	// 	ui.LoadingSpinner(done)
 	// }()
 
-	fmt.Printf("\r%s", "                                         ")
-	drawlogo.DrawStatus(res.VehicleData)
+	// fmt.Printf("\r%s", "                                         ")
+	// drawlogo.DrawStatus(res.VehicleData)
 
 	return
 }
