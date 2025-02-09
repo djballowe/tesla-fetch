@@ -6,7 +6,7 @@ import (
 	"tesla-app/client/api"
 )
 
-func DrawStatus(vehicleData api.VehicleData) {
+func DrawStatus(vehicleData *api.VehicleData) {
 	logo := []string{
 		"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀",
 		"⢀⣀⣤⣤⣶⡶⠿⠟⠛⠛⠛⠛⠛⠛⠛⠛⠻⠿⢶⣶⣤⣤⣀⡀",
@@ -27,7 +27,7 @@ func DrawStatus(vehicleData api.VehicleData) {
 	draw(logo, info)
 }
 
-func buildInfo(vehicleData api.VehicleData) []string {
+func buildInfo(vehicleData *api.VehicleData) []string {
 	carMap := map[string]string{
 		"models": "Model S",
 		"model3": "Model 3",
