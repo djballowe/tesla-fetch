@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -29,7 +30,7 @@ func main() {
 		setCommand(args[1])
 		break
 	default:
-		fmt.Println("error: can only issue one command")
+		log.Fatalf("error: %v", errors.New("can only issue one command"))
 	}
 
 	return
