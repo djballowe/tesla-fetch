@@ -7,13 +7,12 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"tesla-app/server/common"
+	"tesla-app/client/helpers"
 )
 
 type VehicleStateResponse struct {
-	State      string
-	Vin        string
-	StatusCode int
+	State string
+	Vin   string
 }
 
 type TeslaVehicleApiResponse struct {
@@ -39,10 +38,8 @@ type TeslaVehicleApiResponse struct {
 	} `json:"response"`
 }
 
-func VehicleState() (VehicleStateResponse, error) {
-	var vehicleStateResponse = VehicleStateResponse{}
-
-	tokenStore, state := common.GetTokenStore()
+func VehicleState() (*VehicleStateResponse, error) {
+	tokenStore, state := helpers.GetTokenStore()
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
@@ -51,7 +48,7 @@ func VehicleState() (VehicleStateResponse, error) {
 	client := &http.Client{}
 	vehicleStateRequest, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return returnGenericError(), err
+		return nil, err
 	}
 
 	vehicleStateRequest.Header = http.Header{
@@ -61,42 +58,31 @@ func VehicleState() (VehicleStateResponse, error) {
 
 	res, err := client.Do(vehicleStateRequest)
 	if err != nil {
-		return returnGenericError(), err
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return returnGenericError(), err
+		return nil, err
 	}
 
 	if res.StatusCode != 200 {
 		err = errors.New(fmt.Sprintf("vehicle state response failed with status code %s", res.Status))
-		return VehicleStateResponse{
-			State:      "error",
-			Vin:        "",
-			StatusCode: res.StatusCode,
-		}, err
+		return nil, err
 	}
 
 	var responseBody TeslaVehicleApiResponse
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
-		return returnGenericError(), err
+		return nil, err
 	}
 
-	vehicleStateResponse.State = responseBody.Response.State
-	vehicleStateResponse.Vin = responseBody.Response.Vin
-	vehicleStateResponse.StatusCode = res.StatusCode
-
-	return vehicleStateResponse, nil
-}
-
-func returnGenericError() VehicleStateResponse {
-	return VehicleStateResponse{
-		State:      "error",
-		Vin:        "",
-		StatusCode: 500,
+	vehicleState := &VehicleStateResponse{
+		State: responseBody.Response.State,
+		Vin:   responseBody.Response.Vin,
 	}
+
+	return vehicleState, nil
 }

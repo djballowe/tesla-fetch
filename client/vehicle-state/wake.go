@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
-	"tesla-app/server/common"
+	"tesla-app/client/helpers"
 	"time"
 )
 
@@ -21,10 +22,8 @@ type TeslaVehicleWakeResponse struct {
 	}
 }
 
-func Wake() (WakeResponse, error) {
-	var wakeResponse = WakeResponse{}
-
-	tokenStore, state := common.GetTokenStore()
+func Wake() (*WakeResponse, error) {
+	tokenStore, state := helpers.GetTokenStore()
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
@@ -33,7 +32,7 @@ func Wake() (WakeResponse, error) {
 	client := &http.Client{}
 	vehicleStateRequest, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		return wakeResponse, err
+		return nil, err
 	}
 
 	vehicleStateRequest.Header = http.Header{
@@ -43,23 +42,25 @@ func Wake() (WakeResponse, error) {
 
 	res, err := client.Do(vehicleStateRequest)
 	if err != nil {
-		return wakeResponse, err
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return wakeResponse, err
+		return nil, err
 	}
 
 	var responseBody TeslaVehicleWakeResponse
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
-		return wakeResponse, err
+		return nil, err
 	}
 
-	wakeResponse.State = responseBody.Response.State
+	wakeResponse := &WakeResponse{
+		State: responseBody.Response.State,
+	}
 
 	return wakeResponse, nil
 }
@@ -75,7 +76,11 @@ func PollWake() error {
 			return errors.New("Timeout, could not wake vehicle")
 
 		case <-ticker.C:
-			wakeResponse, _ := Wake()
+			wakeResponse, err := Wake()
+			log.Println("wakeResponse: ", wakeResponse.State)
+			if err != nil {
+				return err
+			}
 			state = wakeResponse.State
 			if state == "online" {
 				return nil
