@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"tesla-app/client/helpers"
+	"tesla-app/client/vehicle-state"
 )
 
 type VehicleData struct {
@@ -341,18 +342,18 @@ func CallGetVehicleData() (*VehicleData, error) {
 
 	var apiResponse = &VehicleResponse{}
 
-	// vehicleState, err := vehicle.VehicleState()
-	// if err != nil {
-	// 	http.Error(writer, fmt.Sprintf("Could not get vehicle state: %s", err), vehicleState.StatusCode)
-	// 	return
-	// }
-	// if vehicleState.State != "online" {
-	// 	err := vehicle.PollWake()
-	// 	if err != nil {
-	// 		http.Error(writer, "Could not wake vehicle", http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// }
+	vehicleState, err := vehicle.VehicleState()
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("vehicleState: ", vehicleState.State)
+	if vehicleState.State != "online" {
+		err := vehicle.PollWake()
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 
@@ -361,8 +362,6 @@ func CallGetVehicleData() (*VehicleData, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println("Token: ", tokenStore[state].AccessToken)
 
 	vehicleDataRequest.Header = http.Header{
 		"Content-Type":  {"application/json"},
