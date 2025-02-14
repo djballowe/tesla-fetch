@@ -400,9 +400,9 @@ func CallGetVehicleData() (*VehicleData, error) {
 		OutsideTemp:          int(apiResponse.Response.ClimateState.OutsideTemp),
 		Locked:               apiResponse.Response.VehicleState.Locked,
 		Odometer:             int(apiResponse.Response.VehicleState.Odometer),
-		Color:                apiResponse.Response.Color,
+		Color:                apiResponse.Response.VehicleConfig.ExteriorColor,
 		VehicleName:          apiResponse.Response.VehicleState.VehicleName,
-		CarType:              apiResponse.Response.VehicleState.CarVersion,
+		CarType:              apiResponse.Response.VehicleConfig.CarType,
 		CarSpecialType:       apiResponse.Response.VehicleConfig.CarSpecialType,
 	}
 
