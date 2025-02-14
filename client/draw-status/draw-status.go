@@ -6,6 +6,12 @@ import (
 	"tesla-app/client/api"
 )
 
+const (
+	red   = "\033[1;31m"
+	white = "\033[1;37m"
+	reset = "\033[0m"
+)
+
 func DrawStatus(vehicleData *api.VehicleData) {
 	logo := []string{
 		"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀",
@@ -35,7 +41,7 @@ func buildInfo(vehicleData *api.VehicleData) []string {
 		"modely": "Model Y",
 	}
 
-	header := fmt.Sprintf("\033[1;37m%s, %s\033[0m", vehicleData.VehicleName, carMap[vehicleData.CarType])
+	header := fmt.Sprintf("%s%s, %s%s", white, vehicleData.VehicleName, carMap[vehicleData.CarType], reset)
 	headerLine := ""
 
 	for i := 0; i < len([]rune(header)); i++ {
@@ -45,19 +51,19 @@ func buildInfo(vehicleData *api.VehicleData) []string {
 	info := []string{
 		fmt.Sprintf("%s", header),
 		fmt.Sprintf("%s", headerLine),
-		fmt.Sprintf("\033[1;31mColor\033[0m: \033[1;37m%s\033[0m", vehicleData.Color),
-		fmt.Sprintf("\033[1;31mMiles\033[0m: \033[1;37m%d\033[0m", vehicleData.Odometer),
-		fmt.Sprintf("\033[1;31mCharge\033[0m: \033[1;37m%d%%\033[0m", vehicleData.BatteryLevel),
-		fmt.Sprintf("\033[1;31mCharge Limit\033[0m: \033[1;37m%d\033[0m", vehicleData.ChargeLimitSoc),
-		fmt.Sprintf("\033[1;31mRange\033[0m: \033[1;37m%.1f Miles\033[0m", vehicleData.BatteryRange),
-		fmt.Sprintf("\033[1;31mCharge State\033[0m: \033[1;37m%s\033[0m", vehicleData.ChargingState),
-		fmt.Sprintf("\033[1;31mCharge Rate\033[0m: \033[1;37m%.1f\033[0m", vehicleData.ChargeRate),
-		fmt.Sprintf("\033[1;31mClimate On\033[0m: \033[1;37m%t\033[0m", vehicleData.IsClimateOn),
-		fmt.Sprintf("\033[1;31mClimate Inside\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(vehicleData.InsideTemp)),
-		fmt.Sprintf("\033[1;31mClimate Outside\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(vehicleData.OutsideTemp)),
-		fmt.Sprintf("\033[1;31mDriver Temp Setting\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(int(vehicleData.DriverTempSetting))),
-		fmt.Sprintf("\033[1;31mPassenger Temp Setting\033[0m: \033[1;37m%d\u00B0F\033[0m", convertClimate(int(vehicleData.PassengerTempSetting))),
-		fmt.Sprintf("\033[1;31mLocked\033[0m: \033[1;37m%t\033[0m", vehicleData.Locked),
+		fmt.Sprintf("%sColor%s: %s%s%s", red, reset, white, vehicleData.Color, reset),
+		fmt.Sprintf("%sMiles%s: %s%d%s", red, reset, white, vehicleData.Odometer, reset),
+		fmt.Sprintf("%sCharge%s: %s%d%%%s", red, reset, white, vehicleData.BatteryLevel, reset),
+		fmt.Sprintf("%sCharge Limit%s: %s%d%s", red, reset, white, vehicleData.ChargeLimitSoc, reset),
+		fmt.Sprintf("%sRange%s: %s%.1f Miles%s", red, reset, white, vehicleData.BatteryRange, reset),
+		fmt.Sprintf("%sCharge State%s: %s%s%s", red, reset, white, vehicleData.ChargingState, reset),
+		fmt.Sprintf("%sCharge Rate%s: %s%.1f%s", red, reset, white, vehicleData.ChargeRate, reset),
+		fmt.Sprintf("%sClimate On%s: %s%t%s", red, reset, white, vehicleData.IsClimateOn, reset),
+		fmt.Sprintf("%sClimate Inside%s: %s%d\u00B0F%s", red, reset, white, convertClimate(vehicleData.InsideTemp), reset),
+		fmt.Sprintf("%sClimate Outside%s: %s%d\u00B0F%s", red, reset, white, convertClimate(vehicleData.OutsideTemp), reset),
+		fmt.Sprintf("%sDriver Temp Setting%s: %s%d\u00B0F%s", red, reset, white, convertClimate(int(vehicleData.DriverTempSetting)), reset),
+		fmt.Sprintf("%sPassenger Temp Setting%s: %s%d\u00B0F%s", red, reset, white, convertClimate(int(vehicleData.PassengerTempSetting)), reset),
+		fmt.Sprintf("%sLocked%s: %s%t%s", red, reset, white, vehicleData.Locked, reset),
 	}
 
 	return info
@@ -74,7 +80,7 @@ func draw(logo []string, info []string) {
 	fmt.Printf("\n")
 	for i := 0; i < loop; i++ {
 		if i < len(logo) {
-			fmt.Printf("\t\033[1;31m%s\033[0m", logo[i])
+			fmt.Printf("\t%s%s%s", red, logo[i], reset)
 			if infoIdx < infoSize {
 				fmt.Printf("\t%s", info[infoIdx])
 			}
