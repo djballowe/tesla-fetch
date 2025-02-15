@@ -7,16 +7,6 @@ import (
 	"net/http"
 )
 
-type CallIssueCommandResponse struct {
-	StatusCode int
-	Body       string
-}
-
-type ResponseBody struct {
-	Message string
-	Success bool
-}
-
 func CallIssueCommand(command string) (CallIssueCommandResponse, error) {
 	reqUrl := fmt.Sprintf("http://localhost:8080/command?command=%s", command)
 	req, err := http.NewRequest(http.MethodPost, reqUrl, nil)

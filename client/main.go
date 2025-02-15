@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
-
-	//"tesla-app/client/draw-status"
 	drawlogo "tesla-app/client/draw-status"
 	postcommand "tesla-app/client/post-command"
-	//	"tesla-app/client/ui"
+	"tesla-app/client/ui"
 	data "tesla-app/client/vehicle-data"
 
 	"github.com/joho/godotenv"
@@ -18,11 +15,14 @@ import (
 
 func main() {
 	args := os.Args
-
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	go func() {
+		ui.LoadingSpinner()
+	}()
 
 	switch len(args) {
 	case 1:
@@ -48,20 +48,12 @@ func setCommand(command string) {
 }
 
 func setGetData() {
-	var group sync.WaitGroup
-	group.Add(1)
-
 	vehicleData, err := data.GetVehicleData()
 	if err != nil {
 		log.Fatalf("Could not get vehicle data: %s", err)
 	}
 
-
-	// go func() {
-	// 	ui.LoadingSpinner(done)
-	// }()
-
-	// fmt.Printf("\r%s", "                                         ")
+	fmt.Printf("\r%s", "                                         ")
 	drawlogo.DrawStatus(vehicleData)
 
 	return

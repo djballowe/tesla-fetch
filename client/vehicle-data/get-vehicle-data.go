@@ -1,8 +1,6 @@
 package data
 
 import (
-	// "errors"
-	// "fmt"
 	"tesla-app/client/api"
 	"tesla-app/client/auth"
 )

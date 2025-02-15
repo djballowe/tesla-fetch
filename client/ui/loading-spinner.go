@@ -5,17 +5,17 @@ import (
 	"time"
 )
 
-func LoadingSpinner(done chan struct{}) {
+func LoadingSpinner() {
 	loadSpinner := [10]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	idx := 0
 
 	for {
 		select {
-		case <-done:
+		case <-ctx.Done():
 			return
 
 		default:
-			fmt.Printf("\r%s", loadSpinner[idx%10])
+			fmt.Printf("\rFetching vehicle data %s\n", loadSpinner[idx%10])
 			time.Sleep(50 * time.Millisecond)
 			idx++
 		}

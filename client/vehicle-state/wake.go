@@ -12,16 +12,6 @@ import (
 	"time"
 )
 
-type WakeResponse struct {
-	State string
-}
-
-type TeslaVehicleWakeResponse struct {
-	Response struct {
-		State string `json:"state"`
-	}
-}
-
 func Wake() (*WakeResponse, error) {
 	tokenStore, state := helpers.GetTokenStore()
 	carId := os.Getenv("MY_CAR_ID")
