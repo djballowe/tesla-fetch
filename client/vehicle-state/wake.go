@@ -5,22 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"tesla-app/client/helpers"
+	"tesla-app/client/ui"
 	"time"
 )
-
-type WakeResponse struct {
-	State string
-}
-
-type TeslaVehicleWakeResponse struct {
-	Response struct {
-		State string `json:"state"`
-	}
-}
 
 func Wake() (*WakeResponse, error) {
 	tokenStore, state := helpers.GetTokenStore()
@@ -65,7 +55,8 @@ func Wake() (*WakeResponse, error) {
 	return wakeResponse, nil
 }
 
-func PollWake() error {
+func PollWake(status chan ui.ProgressUpdate) error {
+	status <- ui.ProgressUpdate{Message: "Waking vehicle"}
 	state := "offline"
 	timeout := time.After(30 * time.Second)
 	ticker := time.NewTicker(5 * time.Second)
@@ -77,7 +68,6 @@ func PollWake() error {
 
 		case <-ticker.C:
 			wakeResponse, err := Wake()
-			log.Println("wakeResponse: ", wakeResponse.State)
 			if err != nil {
 				return err
 			}

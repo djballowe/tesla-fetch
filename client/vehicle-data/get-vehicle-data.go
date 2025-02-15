@@ -1,19 +1,18 @@
 package data
 
 import (
-	// "errors"
-	// "fmt"
 	"tesla-app/client/api"
 	"tesla-app/client/auth"
+	"tesla-app/client/ui"
 )
 
-func GetVehicleData() (*api.VehicleData, error) {
+func GetVehicleData(status chan ui.ProgressUpdate) (*api.VehicleData, error) {
 	err := auth.CallAuth()
 	if err != nil {
 		return nil, err
 	}
 
-	carDataResponse, err := api.CallGetVehicleData()
+	carDataResponse, err := api.CallGetVehicleData(status)
 	if err != nil {
 		return nil, err
 	}
