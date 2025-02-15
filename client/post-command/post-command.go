@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"tesla-app/client/api"
 	"tesla-app/client/auth"
+	"tesla-app/client/ui"
 )
 
-func PostCommand(command string) error {
+func PostCommand(status chan ui.ProgressUpdate, command string) error {
 	response, err := api.CallIssueCommand(command)
 	if err != nil {
 		return err

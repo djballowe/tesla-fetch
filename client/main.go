@@ -31,7 +31,7 @@ func main() {
 		setGetData(status)
 		break
 	case 2:
-		setCommand(args[1])
+		setCommand(status, args[1])
 		break
 	default:
 		log.Fatalf("error: %v", errors.New("can only issue one command"))
@@ -41,8 +41,8 @@ func main() {
 	return
 }
 
-func setCommand(command string) {
-	err := postcommand.PostCommand(command)
+func setCommand(status chan ui.ProgressUpdate, command string) {
+	err := postcommand.PostCommand(status, command)
 	if err != nil {
 		fmt.Printf("error: %s\n", err)
 	}
