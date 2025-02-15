@@ -20,13 +20,15 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	status := make(chan ui.ProgressUpdate)
+
 	go func() {
-		ui.LoadingSpinner()
+		ui.LoadingSpinner(status)
 	}()
 
 	switch len(args) {
 	case 1:
-		setGetData()
+		setGetData(status)
 		break
 	case 2:
 		setCommand(args[1])
@@ -35,6 +37,7 @@ func main() {
 		log.Fatalf("error: %v", errors.New("can only issue one command"))
 	}
 
+	status <- ui.ProgressUpdate{Done: true}
 	return
 }
 
@@ -47,8 +50,8 @@ func setCommand(command string) {
 	return
 }
 
-func setGetData() {
-	vehicleData, err := data.GetVehicleData()
+func setGetData(status chan ui.ProgressUpdate) {
+	vehicleData, err := data.GetVehicleData(status)
 	if err != nil {
 		log.Fatalf("Could not get vehicle data: %s", err)
 	}

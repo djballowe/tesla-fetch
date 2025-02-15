@@ -6,15 +6,15 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"net"
-	"time"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 	"runtime"
+	"time"
 )
 
 func loadEnvConfig() (*Config, error) {
@@ -72,8 +72,6 @@ func CallAuth() error {
 
 	TokenStore[state] = *tokens
 
-	log.Println("Tokens stored successful")
-
 	return nil
 }
 
@@ -92,7 +90,6 @@ func startServer(authUrl string) (*Token, error) {
 	}
 
 	go server.Serve(listener)
-	log.Println("callback server started...")
 	err = openBrowser(authUrl)
 	if err != nil {
 		return nil, err
@@ -118,8 +115,9 @@ func callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	code := r.URL.Query().Get("code")
-	state := r.URL.Query().Get("state")
-	log.Println(state)
+	//state := r.URL.Query().Get("state")
+
+	// TODO compare state
 
 	tokens, err := exchangeCodeForToken(code)
 	if err != nil {
@@ -136,8 +134,6 @@ func callback(w http.ResponseWriter, r *http.Request) {
 // helpers
 
 func exchangeCodeForToken(code string) (*Token, error) {
-	log.Println("Exchanging code for token...")
-
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/token")
 	if err != nil {
 		return nil, err

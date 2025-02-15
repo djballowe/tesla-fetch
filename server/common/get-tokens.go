@@ -26,7 +26,6 @@ func GetTokens(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("Tokens: ", tokens)
 	return
 }
 

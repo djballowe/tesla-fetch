@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"tesla-app/client/helpers"
+	"tesla-app/client/ui"
 	"tesla-app/client/vehicle-state"
 )
 
-
-func CallGetVehicleData() (*VehicleData, error) {
+func CallGetVehicleData(status chan ui.ProgressUpdate) (*VehicleData, error) {
 	tokenStore, state := helpers.GetTokenStore()
 	if state == "" || tokenStore[state].AccessToken == "" {
 		return nil, errors.New("Invalid or no access token")
@@ -23,13 +22,13 @@ func CallGetVehicleData() (*VehicleData, error) {
 	var apiResponse = &VehicleResponse{}
 
 	vehicleState, err := vehicle.VehicleState()
+	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Vehicle State: %s", vehicleState.State)}
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("vehicleState: ", vehicleState.State)
 	if vehicleState.State != "online" {
-		err := vehicle.PollWake()
+		err := vehicle.PollWake(status)
 		if err != nil {
 			return nil, err
 		}
