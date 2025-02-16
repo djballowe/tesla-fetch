@@ -115,13 +115,21 @@ func callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	code := r.URL.Query().Get("code")
-	//state := r.URL.Query().Get("state")
+	state := r.URL.Query().Get("state")
 
-	// TODO compare state
+	if state != StateStore || state == "" {
+		http.Error(w, "Internal auth error", http.StatusBadRequest)
+		errChan <- fmt.Errorf("Internal auth error state missing or mismatch")
+	}
+
+	if code == "" {
+		http.Error(w, "Internal auth error", http.StatusBadRequest)
+		errChan <- fmt.Errorf("Internal auth error missing code")
+	}
 
 	tokens, err := exchangeCodeForToken(code)
 	if err != nil {
-		log.Fatalf("error exchanging code for token: %s", err)
+		http.Error(w, "Internal auth error", http.StatusBadRequest)
 		errChan <- err
 		return
 	}
