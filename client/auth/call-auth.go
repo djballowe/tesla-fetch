@@ -127,6 +127,10 @@ func callback(w http.ResponseWriter, r *http.Request) {
 		errChan <- fmt.Errorf("Internal auth error missing code")
 	}
 
+	StoreMutex.Lock()
+	StateStore = ""
+	StoreMutex.Unlock()
+
 	tokens, err := exchangeCodeForToken(code)
 	if err != nil {
 		http.Error(w, "Internal auth error", http.StatusBadRequest)
