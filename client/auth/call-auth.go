@@ -76,7 +76,15 @@ func CallAuth() error {
 		return err
 	}
 
-	err = store.SaveTokens(tokens)
+	err = store.SaveTokens(tokens, store.salt)
+	if err != nil {
+		return err
+	}
+	_, err = store.LoadTokens()
+	if err != nil {
+		return err
+	}
+
 
 	//	TokenStore[state] = *tokens
 

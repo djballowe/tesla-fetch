@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -30,7 +31,7 @@ func NewTokeStore(code string) (*TokenStore, error) {
 
 	filePath := filepath.Join(tfetchDir, "tfetch-tokens.dat")
 
-	key, err := CreateKey([]byte(code), nil)
+	key, salt, err := CreateKey([]byte(code), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -38,25 +39,26 @@ func NewTokeStore(code string) (*TokenStore, error) {
 	return &TokenStore{
 		filePath: filePath,
 		key:      key,
+		salt:     salt,
 	}, nil
 }
 
-func CreateKey(code []byte, salt []byte) ([]byte, error) {
+func CreateKey(code []byte, salt []byte) ([]byte, []byte, error) {
 	if salt == nil {
 		salt = make([]byte, 16)
 		_, err := io.ReadFull(rand.Reader, salt)
 		if err != nil {
-			return nil, errors.New("Could not create token key")
+			return nil, nil, errors.New("Could not create token key")
 		}
 	}
 
 	k := sha256.New()
 	k.Write(salt)
 	k.Write(code)
-	return k.Sum(nil), nil
+	return k.Sum(nil), salt, nil
 }
 
-func (store *TokenStore) SaveTokens(tokens *Token) error {
+func (store *TokenStore) SaveTokens(tokens *Token, salt []byte) error {
 	data, err := json.Marshal(tokens)
 	if err != nil {
 		return err
@@ -80,10 +82,37 @@ func (store *TokenStore) SaveTokens(tokens *Token) error {
 
 	encrypt := gcm.Seal(nil, iv, data, nil)
 
-	encryptData, err := json.Marshal(encrypt)
+	storageData := EncryptStore{
+		Data: encrypt,
+		IV:   iv,
+		Salt: salt,
+	}
+
+	jsonData, err := json.Marshal(storageData)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(store.filePath, encryptData, 0600)
+	return os.WriteFile(store.filePath, jsonData, 0600)
+}
+
+func (store *TokenStore) LoadTokens() (*Token, error) {
+	encrypt, err := os.ReadFile(store.filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var storage EncryptStore
+	err = json.Unmarshal(encrypt, &storage)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("Data: ", string(storage.Data))
+	log.Println("IV: ", string(storage.IV))
+	log.Println("Salt: ", string(storage.Salt))
+
+	// unencrypt data
+
+	return nil, nil
 }

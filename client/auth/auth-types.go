@@ -26,6 +26,7 @@ type Token struct {
 type TokenStore struct {
 	filePath string
 	key      []byte
+	salt     []byte
 }
 
 type EncryptStore struct {
