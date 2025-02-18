@@ -23,8 +23,18 @@ type Token struct {
 	TokenType    string `json:"token_type"`
 }
 
+type TokenStore struct {
+	filePath string
+	key      []byte
+}
+
+type EncryptStore struct {
+	Salt []byte `json:"salt"`
+	IV   []byte `json:"iv"`
+	Data []byte `json:"data"`
+}
+
 var (
 	StateStore string
-	TokenStore = make(map[string]Token)
 	StoreMutex sync.Mutex
 )

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"tesla-app/client/helpers"
+	"tesla-app/client/auth"
 	"tesla-app/client/ui"
 	"tesla-app/client/vehicle-state"
 )
 
 func CallGetVehicleData(status chan ui.ProgressUpdate) (*VehicleData, error) {
-	tokenStore, state := helpers.GetTokenStore()
+	tokenStore, state := auth.GetTokenStore()
 	if state == "" || tokenStore[state].AccessToken == "" {
 		return nil, errors.New("Invalid or no access token")
 	}

@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -70,9 +71,16 @@ func CallAuth() error {
 		return err
 	}
 
-	TokenStore[state] = *tokens
+	store, err := NewTokeStore("test")
+	if err != nil {
+		return err
+	}
 
-	return nil
+	err = store.SaveTokens(tokens)
+
+	//	TokenStore[state] = *tokens
+
+	return errors.New("throw error")
 }
 
 var tokenChan = make(chan *Token)

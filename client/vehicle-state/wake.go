@@ -7,13 +7,13 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"tesla-app/client/helpers"
+	"tesla-app/client/auth"
 	"tesla-app/client/ui"
 	"time"
 )
 
 func Wake() (*WakeResponse, error) {
-	tokenStore, state := helpers.GetTokenStore()
+	tokenStore, state := auth.GetTokenStore()
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
