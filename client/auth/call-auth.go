@@ -24,6 +24,7 @@ func loadEnvConfig() (*Config, error) {
 		Audience:     os.Getenv("AUDIENCE"),
 		RedirectUri:  os.Getenv("REDIRECT_URI"),
 		Scope:        os.Getenv("SCOPES"),
+		Passphrase:   os.Getenv("PASSPHRASE"),
 	}
 	if config.ClientId == "" || config.ClientSecret == "" || config.Audience == "" || config.RedirectUri == "" || config.Scope == "" {
 		return nil, fmt.Errorf("Missing environment variables")
@@ -31,17 +32,17 @@ func loadEnvConfig() (*Config, error) {
 	return config, nil
 }
 
-func CallAuth() error {
+func CallAuth() (*Token, error) {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/authorize")
 	if err != nil {
 		log.Fatalf("Malformed auth url: %s", err)
-		return err
+		return nil, err
 	}
 
 	config, err := loadEnvConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %s", err)
-		return err
+		return nil, err
 	}
 
 	state := generateState()
@@ -67,12 +68,25 @@ func CallAuth() error {
 	tokens, err := startServer(authUrl)
 	if err != nil {
 		log.Fatalf("Could not start callback server: %s", err)
-		return err
+		return nil, err
 	}
 
-	TokenStore[state] = *tokens
+	store, err := NewTokeStore(config.Passphrase)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	err = store.SaveTokens(tokens, store.salt)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenStore, err := store.LoadTokens(config.Passphrase)
+	if err != nil {
+		return nil, err
+	}
+
+	return tokenStore, nil
 }
 
 var tokenChan = make(chan *Token)
@@ -178,6 +192,7 @@ func exchangeCodeForToken(code string) (*Token, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
 		return nil, err
 	}
+	tokenResponse.CreateAt = time.Now()
 
 	return &tokenResponse, nil
 }

@@ -15,7 +15,8 @@ func PostCommand(status chan ui.ProgressUpdate, command string) error {
 	}
 
 	if response.StatusCode == 401 {
-		err := auth.CallAuth()
+		// change to use new auth
+		_, err := auth.CallAuth()
 		if err != nil {
 			return err
 		}

@@ -1,18 +1,30 @@
 package data
 
 import (
+	"os"
 	"tesla-app/client/api"
 	"tesla-app/client/auth"
 	"tesla-app/client/ui"
 )
 
 func GetVehicleData(status chan ui.ProgressUpdate) (*api.VehicleData, error) {
-	err := auth.CallAuth()
+	passphrase := os.Getenv("PASSPHRASE")
+	store := auth.TokenStore{}
+	token, err := store.LoadTokens(passphrase)
 	if err != nil {
-		return nil, err
+		if err.Error() == "No token stored" {
+			token, err = auth.CallAuth()
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
-	carDataResponse, err := api.CallGetVehicleData(status)
+	if store.IsExpired(token.CreateAt, token.ExpiresIn) {
+		// go through refresh token flow
+	}
+
+	carDataResponse, err := api.CallGetVehicleData(*token, status)
 	if err != nil {
 		return nil, err
 	}

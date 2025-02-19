@@ -6,29 +6,25 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"tesla-app/client/helpers"
+	"tesla-app/client/auth"
 	"tesla-app/client/ui"
 	"tesla-app/client/vehicle-state"
 )
 
-func CallGetVehicleData(status chan ui.ProgressUpdate) (*VehicleData, error) {
-	tokenStore, state := helpers.GetTokenStore()
-	if state == "" || tokenStore[state].AccessToken == "" {
-		return nil, errors.New("Invalid or no access token")
-	}
+func CallGetVehicleData(token auth.Token, status chan ui.ProgressUpdate) (*VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
 	var apiResponse = &VehicleResponse{}
 
-	vehicleState, err := vehicle.VehicleState()
+	vehicleState, err := vehicle.VehicleState(token)
 	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Vehicle State: %s", vehicleState.State)}
 	if err != nil {
 		return nil, err
 	}
 
 	if vehicleState.State != "online" {
-		err := vehicle.PollWake(status)
+		err := vehicle.PollWake(token, status)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +40,7 @@ func CallGetVehicleData(status chan ui.ProgressUpdate) (*VehicleData, error) {
 
 	vehicleDataRequest.Header = http.Header{
 		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + tokenStore[state].AccessToken},
+		"Authorization": {"Bearer " + token.AccessToken},
 	}
 
 	res, err := client.Do(vehicleDataRequest)
