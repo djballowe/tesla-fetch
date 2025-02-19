@@ -12,8 +12,7 @@ import (
 	"time"
 )
 
-func Wake() (*WakeResponse, error) {
-	tokenStore, state := auth.GetTokenStore()
+func Wake(token auth.Token) (*WakeResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
@@ -27,7 +26,7 @@ func Wake() (*WakeResponse, error) {
 
 	vehicleStateRequest.Header = http.Header{
 		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + tokenStore[state].AccessToken},
+		"Authorization": {"Bearer " + token.AccessToken},
 	}
 
 	res, err := client.Do(vehicleStateRequest)
@@ -55,7 +54,7 @@ func Wake() (*WakeResponse, error) {
 	return wakeResponse, nil
 }
 
-func PollWake(status chan ui.ProgressUpdate) error {
+func PollWake(token auth.Token, status chan ui.ProgressUpdate) error {
 	status <- ui.ProgressUpdate{Message: "Waking vehicle"}
 	state := "offline"
 	timeout := time.After(30 * time.Second)
@@ -67,7 +66,7 @@ func PollWake(status chan ui.ProgressUpdate) error {
 			return errors.New("Timeout, could not wake vehicle")
 
 		case <-ticker.C:
-			wakeResponse, err := Wake()
+			wakeResponse, err := Wake(token)
 			if err != nil {
 				return err
 			}

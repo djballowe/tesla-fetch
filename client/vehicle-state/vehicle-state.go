@@ -10,8 +10,7 @@ import (
 	"tesla-app/client/auth"
 )
 
-func VehicleState() (*VehicleStateResponse, error) {
-	tokenStore, state := auth.GetTokenStore()
+func VehicleState(token auth.Token) (*VehicleStateResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
@@ -25,7 +24,7 @@ func VehicleState() (*VehicleStateResponse, error) {
 
 	vehicleStateRequest.Header = http.Header{
 		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + tokenStore[state].AccessToken},
+		"Authorization": {"Bearer " + token.AccessToken},
 	}
 
 	res, err := client.Do(vehicleStateRequest)

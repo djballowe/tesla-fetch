@@ -1,6 +1,9 @@
 package auth
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 type AuthResponse struct {
 	CallbackUrl string `json:"callback_url"`
@@ -16,12 +19,13 @@ type Config struct {
 }
 
 type Token struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	IdToken      string `json:"id_token"`
-	State        string `json:"state"`
-	ExpiresIn    int    `json:"expires_in"`
-	TokenType    string `json:"token_type"`
+	AccessToken  string    `json:"access_token"`
+	RefreshToken string    `json:"refresh_token"`
+	IdToken      string    `json:"id_token"`
+	State        string    `json:"state"`
+	TokenType    string    `json:"token_type"`
+	ExpiresIn    int       `json:"expires_in"`
+	CreateAt     time.Time `json:"created_at"`
 }
 
 type TokenStore struct {

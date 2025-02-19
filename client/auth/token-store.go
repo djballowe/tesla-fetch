@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func NewTokeStore(code string) (*TokenStore, error) {
@@ -96,6 +97,9 @@ func (store *TokenStore) SaveTokens(tokens *Token, salt []byte) error {
 func (store *TokenStore) LoadTokens(code string) (*Token, error) {
 	encrypt, err := os.ReadFile(store.filePath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, errors.New("No token stored") 
+		}
 		return nil, err
 	}
 
@@ -132,4 +136,9 @@ func (store *TokenStore) LoadTokens(code string) (*Token, error) {
 	}
 
 	return &tokens, nil
+}
+
+func (store *TokenStore) IsExpired(createdAt time.Time, expiresIn int) bool {
+	expiration := createdAt.Add(time.Duration(expiresIn) * time.Second)
+	return time.Now().After(expiration)
 }
