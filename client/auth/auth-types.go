@@ -12,6 +12,7 @@ type Config struct {
 	Audience     string
 	RedirectUri  string
 	Scope        string
+	Passphrase   string
 }
 
 type Token struct {

@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -25,6 +24,7 @@ func loadEnvConfig() (*Config, error) {
 		Audience:     os.Getenv("AUDIENCE"),
 		RedirectUri:  os.Getenv("REDIRECT_URI"),
 		Scope:        os.Getenv("SCOPES"),
+		Passphrase:   os.Getenv("PASSPHRASE"),
 	}
 	if config.ClientId == "" || config.ClientSecret == "" || config.Audience == "" || config.RedirectUri == "" || config.Scope == "" {
 		return nil, fmt.Errorf("Missing environment variables")
@@ -71,7 +71,7 @@ func CallAuth() error {
 		return err
 	}
 
-	store, err := NewTokeStore("test")
+	store, err := NewTokeStore(config.Passphrase)
 	if err != nil {
 		return err
 	}
@@ -80,15 +80,15 @@ func CallAuth() error {
 	if err != nil {
 		return err
 	}
-	_, err = store.LoadTokens()
+
+	tokenStore, err := store.LoadTokens(config.Passphrase)
 	if err != nil {
 		return err
 	}
 
+	log.Println(tokenStore.ExpiresIn)
 
-	//	TokenStore[state] = *tokens
-
-	return errors.New("throw error")
+	return nil
 }
 
 var tokenChan = make(chan *Token)
