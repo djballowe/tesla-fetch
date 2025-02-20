@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -29,8 +30,6 @@ func NewTokeStore(code string) (*TokenStore, error) {
 		return nil, err
 	}
 
-	filePath := filepath.Join(tfetchDir, "tfetch-tokens.dat")
-
 	salt := make([]byte, 16)
 	_, err = io.ReadFull(rand.Reader, salt)
 	if err != nil {
@@ -43,9 +42,8 @@ func NewTokeStore(code string) (*TokenStore, error) {
 	}
 
 	return &TokenStore{
-		filePath: filePath,
-		key:      key,
-		salt:     salt,
+		key:  key,
+		salt: salt,
 	}, nil
 }
 
@@ -91,14 +89,25 @@ func (store *TokenStore) SaveTokens(tokens *Token, salt []byte) error {
 		return err
 	}
 
-	return os.WriteFile(store.filePath, jsonData, 0600)
+	filePath, err := getConfigFilePath()
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filePath, jsonData, 0600)
 }
 
 func (store *TokenStore) LoadTokens(code string) (*Token, error) {
-	encrypt, err := os.ReadFile(store.filePath)
+	filePath, err := getConfigFilePath()
+	if err != nil {
+		return nil, err
+	}
+
+	encrypt, err := os.ReadFile(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, errors.New("No token stored") 
+			log.Println("error not exist")
+			return nil, errors.New("No token stored")
 		}
 		return nil, err
 	}
@@ -141,4 +150,21 @@ func (store *TokenStore) LoadTokens(code string) (*Token, error) {
 func (store *TokenStore) IsExpired(createdAt time.Time, expiresIn int) bool {
 	expiration := createdAt.Add(time.Duration(expiresIn) * time.Second)
 	return time.Now().After(expiration)
+}
+
+func getConfigFilePath() (string, error) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+
+	tfetchDir := filepath.Join(configDir, "tfetch")
+	err = os.MkdirAll(tfetchDir, 0700)
+	if err != nil {
+		return "", err
+	}
+
+	filePath := filepath.Join(tfetchDir, "tfetch-tokens.dat")
+
+	return filePath, nil
 }
