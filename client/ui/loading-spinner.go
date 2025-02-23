@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -19,13 +20,16 @@ func LoadingSpinner(status chan ProgressUpdate) {
 		select {
 		case state := <-status:
 			if state.Done {
-				fmt.Printf("\r%s", "                                         ")
+				erase := strings.Repeat(" ", len(currentMessage)*10)
+				fmt.Printf("\r%s\r", erase)
 			}
 			currentMessage = state.Message
 
 		default:
-			fmt.Printf("\r%s %s", loadSpinner[idx%10], currentMessage)
-			time.Sleep(50 * time.Millisecond)
+			erase := strings.Repeat(" ", len(currentMessage)*10)
+			fmt.Printf("\r  %s\r", erase)
+			fmt.Printf("%s %s", loadSpinner[idx%10], currentMessage)
+			time.Sleep(100 * time.Millisecond)
 			idx++
 		}
 	}
