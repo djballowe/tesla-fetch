@@ -20,9 +20,8 @@ func GetVehicleData(status chan ui.ProgressUpdate) (*api.VehicleData, error) {
 		}
 	}
 
-	// TODO test this again
 	if store.IsExpired(token.CreateAt, token.ExpiresIn) {
-		status <- ui.ProgressUpdate{Message: "Token expired, refreshing..."}
+		status <- ui.ProgressUpdate{Message: "Token expired, refreshing"}
 		token, err = auth.RefreshToken(token.RefreshToken)
 		if err != nil {
 			return nil, err
