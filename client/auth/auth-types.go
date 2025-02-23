@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"sync"
 	"time"
 )
 
@@ -29,8 +28,8 @@ type Token struct {
 }
 
 type TokenStore struct {
-	key      []byte
-	salt     []byte
+	key  []byte
+	salt []byte
 }
 
 type EncryptStore struct {
@@ -41,5 +40,4 @@ type EncryptStore struct {
 
 var (
 	StateStore string
-	StoreMutex sync.Mutex
 )

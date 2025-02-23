@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	drawlogo "tesla-app/client/draw-status"
@@ -21,6 +20,7 @@ func main() {
 	}
 
 	status := make(chan ui.ProgressUpdate)
+	defer close(status)
 
 	go func() {
 		ui.LoadingSpinner(status)
@@ -42,9 +42,9 @@ func main() {
 }
 
 func setCommand(status chan ui.ProgressUpdate, command string) {
-	err := postcommand.PostCommand(status, command)
+	err := postcommand.IssueCommand(status, command)
 	if err != nil {
-		fmt.Printf("error: %s\n", err)
+		log.Fatalf("error: %s\n", err)
 	}
 
 	return
@@ -56,8 +56,6 @@ func setGetData(status chan ui.ProgressUpdate) {
 		log.Fatalf("Could not get vehicle data: %s", err)
 	}
 
-	fmt.Printf("\r%s", "                                         ")
 	drawlogo.DrawStatus(vehicleData)
-
 	return
 }

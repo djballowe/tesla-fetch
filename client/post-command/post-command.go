@@ -3,36 +3,22 @@ package postcommand
 import (
 	"errors"
 	"fmt"
-	"tesla-app/client/api"
 	"tesla-app/client/auth"
+	vehiclecommand "tesla-app/client/command"
 	"tesla-app/client/ui"
 )
 
-func PostCommand(status chan ui.ProgressUpdate, command string) error {
-	response, err := api.CallIssueCommand(command)
+func IssueCommand(status chan ui.ProgressUpdate, command string) error {
+	token, err := auth.CheckLogin(status)
+	response, err := vehiclecommand.CallIssueCommand(status, *token, command)
 	if err != nil {
 		return err
 	}
 
-	if response.StatusCode == 401 {
-		// change to use new auth
-		_, err := auth.CallAuth()
-		if err != nil {
-			return err
-		}
-
-		response, err = api.CallIssueCommand(command)
-		if err != nil {
-			return err
-		}
-	}
-
-	if response.StatusCode != 200 {
-		err := errors.New(fmt.Sprintf("Failed to issue command: %s Status Code: %d", response.Body, response.StatusCode))
+	if response.Success == false {
+		err := errors.New(fmt.Sprintf("Failed to issue command %s: %s", command, response.Message))
 		return err
 	}
-
-	fmt.Println(response.Body)
 
 	return nil
 }

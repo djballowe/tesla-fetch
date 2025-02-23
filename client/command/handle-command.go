@@ -1,4 +1,4 @@
-package common
+package vehiclecommand
 
 import (
 	"context"
@@ -10,17 +10,6 @@ import (
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
 	"github.com/teslamotors/vehicle-command/pkg/vehicle"
 )
-
-type CommandRequest struct {
-	AuthToken string `json:"authToken"`
-	Vin       string `json:"vin"`
-	Command   string `json:"command"`
-}
-
-type CommandResponse struct {
-	Success bool   `json:"status"`
-	Message string `json:"message"`
-}
 
 func HandleCommand(req CommandRequest) CommandResponse {
 	if req.Vin == "" {
@@ -47,9 +36,6 @@ func HandleCommand(req CommandRequest) CommandResponse {
 		return handleReturn(fmt.Sprintf("Error getting vehicle: %s", err.Error()), false)
 	}
 
-	fmt.Printf("VIN: %s\n", car.VIN())
-	fmt.Println("Connecting to car...")
-
 	err = car.Connect(ctx)
 	if err != nil {
 		return handleReturn(fmt.Sprintf("Error connecting to car: %s", err.Error()), false)
@@ -72,7 +58,6 @@ func HandleCommand(req CommandRequest) CommandResponse {
 }
 
 func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string) error {
-	fmt.Printf("Issuing: %s command\n", command)
 	var err error
 
 	switch command {

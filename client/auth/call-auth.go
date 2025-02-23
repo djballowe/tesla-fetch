@@ -46,9 +46,7 @@ func CallAuth() (*Token, error) {
 	}
 
 	state := generateState()
-	StoreMutex.Lock()
 	StateStore = state
-	StoreMutex.Unlock()
 
 	authData := map[string]string{
 		"response_type": "code",

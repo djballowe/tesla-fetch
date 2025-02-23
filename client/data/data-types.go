@@ -1,4 +1,4 @@
-package api
+package data
 
 type VehicleData struct {
 	State                string  `json:"state"`
