@@ -3,7 +3,7 @@ package drawlogo
 import (
 	"fmt"
 	"math"
-	"tesla-app/client/api"
+	"tesla-app/data"
 )
 
 const (
@@ -12,7 +12,7 @@ const (
 	reset = "\033[0m"
 )
 
-func DrawStatus(vehicleData *api.VehicleData) {
+func DrawStatus(vehicleData *data.VehicleData) {
 	logo := []string{
 		"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀",
 		"⢀⣀⣤⣤⣶⡶⠿⠟⠛⠛⠛⠛⠛⠛⠛⠛⠻⠿⢶⣶⣤⣤⣀⡀",
@@ -33,7 +33,7 @@ func DrawStatus(vehicleData *api.VehicleData) {
 	draw(logo, info)
 }
 
-func buildInfo(vehicleData *api.VehicleData) []string {
+func buildInfo(vehicleData *data.VehicleData) []string {
 	carMap := map[string]string{
 		"models": "Model S",
 		"model3": "Model 3",

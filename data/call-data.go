@@ -1,4 +1,4 @@
-package api
+package data
 
 import (
 	"encoding/json"
@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"tesla-app/client/auth"
-	"tesla-app/client/ui"
-	"tesla-app/client/vehicle-state"
+	"tesla-app/auth"
+	"tesla-app/ui"
+	"tesla-app/vehicle-state"
 )
 
 func CallGetVehicleData(token auth.Token, status chan ui.ProgressUpdate) (*VehicleData, error) {

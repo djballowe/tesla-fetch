@@ -21,7 +21,8 @@ func LoadingSpinner(status chan ProgressUpdate) {
 		case state := <-status:
 			if state.Done {
 				erase := strings.Repeat(" ", len(currentMessage)*10)
-				fmt.Printf("\r%s\r", erase)
+				fmt.Printf("\r  %s\r", erase)
+				fmt.Printf("%s", currentMessage)
 			}
 			currentMessage = state.Message
 
@@ -29,7 +30,7 @@ func LoadingSpinner(status chan ProgressUpdate) {
 			erase := strings.Repeat(" ", len(currentMessage)*10)
 			fmt.Printf("\r  %s\r", erase)
 			fmt.Printf("%s %s", loadSpinner[idx%10], currentMessage)
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 			idx++
 		}
 	}

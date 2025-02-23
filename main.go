@@ -2,15 +2,13 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
-	drawlogo "tesla-app/client/draw-status"
-	postcommand "tesla-app/client/post-command"
-	"tesla-app/client/ui"
-	data "tesla-app/client/vehicle-data"
-
+	"tesla-app/ui"
 	"github.com/joho/godotenv"
+	data "tesla-app/vehicle-data"
+	drawlogo "tesla-app/draw-status"
+	postcommand "tesla-app/post-command"
 )
 
 func main() {
@@ -21,6 +19,7 @@ func main() {
 	}
 
 	status := make(chan ui.ProgressUpdate)
+	defer close(status)
 
 	go func() {
 		ui.LoadingSpinner(status)
@@ -42,9 +41,9 @@ func main() {
 }
 
 func setCommand(status chan ui.ProgressUpdate, command string) {
-	err := postcommand.PostCommand(status, command)
+	err := postcommand.IssueCommand(status, command)
 	if err != nil {
-		fmt.Printf("error: %s\n", err)
+		log.Fatalf("error: %s\n", err)
 	}
 
 	return
@@ -56,8 +55,6 @@ func setGetData(status chan ui.ProgressUpdate) {
 		log.Fatalf("Could not get vehicle data: %s", err)
 	}
 
-	fmt.Printf("\r%s", "                                         ")
 	drawlogo.DrawStatus(vehicleData)
-
 	return
 }
