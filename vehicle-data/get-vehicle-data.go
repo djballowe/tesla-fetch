@@ -1,9 +1,9 @@
 package data
 
 import (
-	"tesla-app/client/auth"
-	"tesla-app/client/data"
-	"tesla-app/client/ui"
+	"tesla-app/auth"
+	"tesla-app/data"
+	"tesla-app/ui"
 )
 
 func GetVehicleData(status chan ui.ProgressUpdate) (*data.VehicleData, error) {

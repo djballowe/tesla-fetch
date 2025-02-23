@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"tesla-app/client/auth"
-	"tesla-app/client/ui"
+	"tesla-app/auth"
+	"tesla-app/ui"
 	"time"
 )
 

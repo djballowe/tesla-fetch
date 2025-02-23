@@ -2,7 +2,7 @@ package auth
 
 import (
 	"os"
-	"tesla-app/client/ui"
+	"tesla-app/ui"
 )
 
 func CheckLogin(status chan ui.ProgressUpdate) (*Token, error) {

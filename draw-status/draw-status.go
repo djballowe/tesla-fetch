@@ -3,7 +3,7 @@ package drawlogo
 import (
 	"fmt"
 	"math"
-	"tesla-app/client/data"
+	"tesla-app/data"
 )
 
 const (

@@ -3,9 +3,9 @@ package postcommand
 import (
 	"errors"
 	"fmt"
-	"tesla-app/client/auth"
-	vehiclecommand "tesla-app/client/command"
-	"tesla-app/client/ui"
+	"tesla-app/auth"
+	"tesla-app/ui"
+	vehiclecommand "tesla-app/command"
 )
 
 func IssueCommand(status chan ui.ProgressUpdate, command string) error {

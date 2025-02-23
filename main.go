@@ -4,12 +4,11 @@ import (
 	"errors"
 	"log"
 	"os"
-	drawlogo "tesla-app/client/draw-status"
-	postcommand "tesla-app/client/post-command"
-	"tesla-app/client/ui"
-	data "tesla-app/client/vehicle-data"
-
+	"tesla-app/ui"
 	"github.com/joho/godotenv"
+	data "tesla-app/vehicle-data"
+	drawlogo "tesla-app/draw-status"
+	postcommand "tesla-app/post-command"
 )
 
 func main() {

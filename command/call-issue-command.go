@@ -3,9 +3,9 @@ package vehiclecommand
 import (
 	"errors"
 	"fmt"
-	"tesla-app/client/auth"
-	"tesla-app/client/ui"
-	"tesla-app/client/vehicle-state"
+	"tesla-app/auth"
+	"tesla-app/ui"
+	"tesla-app/vehicle-state"
 )
 
 func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string) (*CommandResponse, error) {
