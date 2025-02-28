@@ -1,17 +1,16 @@
 package vehiclecommand
 
 import (
-	"errors"
 	"fmt"
 	"tesla-app/auth"
 	"tesla-app/ui"
 	"tesla-app/vehicle-state"
 )
 
-func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string) (*CommandResponse, error) {
+func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string) error {
 	vehicleState, err := vehicle.VehicleState(token)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	state := vehicleState.State
@@ -20,7 +19,7 @@ func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command s
 	if state != "online" {
 		err := vehicle.PollWake(token, status)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
@@ -32,13 +31,12 @@ func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command s
 		Command:   command,
 	}
 
-	commandResp := HandleCommand(commandReq)
-
-	if !commandResp.Success {
-		return nil, errors.New("Could not issue command")
+	err = HandleCommand(commandReq)
+	if err != nil {
+		return fmt.Errorf("could not issue command: %s", err.Error())
 	}
 
 	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Command %s issued successfully", command)}
 
-	return &commandResp, nil
+	return nil
 }

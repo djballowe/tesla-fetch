@@ -111,6 +111,9 @@ func (store *TokenStore) LoadTokens(code string) (*Token, error) {
 		}
 		return nil, err
 	}
+	if string(encrypt) == "" {
+		return nil, errors.New("No token stored")
+	}
 
 	var storage EncryptStore
 	err = json.Unmarshal(encrypt, &storage)
