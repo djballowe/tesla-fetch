@@ -4,11 +4,12 @@ import (
 	"errors"
 	"log"
 	"os"
-	"tesla-app/ui"
-	"github.com/joho/godotenv"
-	data "tesla-app/vehicle-data"
 	drawlogo "tesla-app/draw-status"
 	postcommand "tesla-app/post-command"
+	"tesla-app/ui"
+	data "tesla-app/vehicle-data"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -36,7 +37,6 @@ func main() {
 		log.Fatalf("error: %v", errors.New("can only issue one command"))
 	}
 
-	status <- ui.ProgressUpdate{Done: true}
 	return
 }
 
@@ -55,6 +55,7 @@ func setGetData(status chan ui.ProgressUpdate) {
 		log.Fatalf("Could not get vehicle data: %s", err)
 	}
 
+	status <- ui.ProgressUpdate{Done: true}
 	drawlogo.DrawStatus(vehicleData)
 	return
 }

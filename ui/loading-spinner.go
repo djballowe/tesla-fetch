@@ -2,8 +2,8 @@ package ui
 
 import (
 	"fmt"
-	"strings"
 	"time"
+	// "strings"
 )
 
 type ProgressUpdate struct {
@@ -14,23 +14,19 @@ type ProgressUpdate struct {
 func LoadingSpinner(status chan ProgressUpdate) {
 	loadSpinner := [10]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	idx := 0
-	currentMessage := "Fetching data"
+	curMessage := "Fetching data"
 
 	for {
 		select {
 		case state := <-status:
 			if state.Done {
-				erase := strings.Repeat(" ", len(currentMessage)*10)
-				fmt.Printf("\r  %s\r", erase)
-				fmt.Printf("%s", currentMessage)
+				fmt.Printf("\r                                            ")
+				return
 			}
-			currentMessage = state.Message
 
 		default:
-			erase := strings.Repeat(" ", len(currentMessage)*10)
-			fmt.Printf("\r  %s\r", erase)
-			fmt.Printf("%s %s", loadSpinner[idx%10], currentMessage)
-			time.Sleep(50 * time.Millisecond)
+			fmt.Printf("\r %s %s", loadSpinner[idx%10], curMessage)
+			time.Sleep(40 * time.Millisecond)
 			idx++
 		}
 	}
