@@ -18,10 +18,11 @@ func CallGetVehicleData(token auth.Token, status chan ui.ProgressUpdate) (*Vehic
 	var apiResponse = &VehicleResponse{}
 
 	vehicleState, err := vehicle.VehicleState(token)
-	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Vehicle State: %s", vehicleState.State)}
 	if err != nil {
 		return nil, err
 	}
+
+	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Vehicle State: %s", vehicleState.State)}
 
 	if vehicleState.State != "online" {
 		err := vehicle.PollWake(token, status)

@@ -14,18 +14,19 @@ type ProgressUpdate struct {
 func LoadingSpinner(status chan ProgressUpdate) {
 	loadSpinner := [10]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	idx := 0
-	curMessage := "Fetching data"
+	state := <-status
 
 	for {
 		select {
 		case state := <-status:
 			if state.Done {
 				fmt.Printf("\r                                            ")
+				fmt.Printf("\r")
 				return
 			}
 
 		default:
-			fmt.Printf("\r %s %s", loadSpinner[idx%10], curMessage)
+			fmt.Printf("\r %s %s", loadSpinner[idx%10], state.Message)
 			time.Sleep(40 * time.Millisecond)
 			idx++
 		}
