@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"time"
-	// "strings"
 )
 
 type ProgressUpdate struct {
