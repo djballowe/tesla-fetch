@@ -23,8 +23,6 @@ func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command s
 		}
 	}
 
-	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Issuing command: %s", command)}
-
 	var commandReq = CommandRequest{
 		AuthToken: token.AccessToken,
 		Vin:       vin,
@@ -33,7 +31,7 @@ func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command s
 
 	err = HandleCommand(commandReq)
 	if err != nil {
-		return fmt.Errorf("could not issue command: %s", err.Error())
+		return fmt.Errorf("\rcould not issue command: %s", err.Error())
 	}
 
 	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Command %s issued successfully", command)}

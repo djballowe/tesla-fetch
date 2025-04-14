@@ -76,7 +76,7 @@ func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string
 }
 
 func getPrivateKey() (protocol.ECDHPrivateKey, error) {
-	privateKey, err := protocol.LoadPrivateKey("../.temp/private-key.pem")
+	privateKey, err := protocol.LoadPrivateKey("./.temp/private-key.pem")
 	if err != nil {
 		return nil, err
 	}
