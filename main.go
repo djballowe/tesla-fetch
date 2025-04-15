@@ -3,19 +3,28 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"path/filepath"
 	drawlogo "tesla-app/draw-status"
 	postcommand "tesla-app/post-command"
 	"tesla-app/ui"
 	data "tesla-app/vehicle-data"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
 	args := os.Args
-	err := godotenv.Load(".env")
+
+	rootDir, err := os.Executable()
+	if err != nil {
+		log.Fatal("/rError loading .env file")
+	}
+
+	path := filepath.Dir(rootDir)
+	envPath := filepath.Join(path, ".env")
+
+	err = godotenv.Load(envPath)
 	if err != nil {
 		log.Fatal("\rError loading .env file")
 	}
