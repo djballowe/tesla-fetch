@@ -51,22 +51,23 @@ func main() {
 }
 
 func setCommand(status chan ui.ProgressUpdate, command string) {
-	status <- ui.ProgressUpdate{Message: "Issueing command"}
+	status <- ui.ProgressUpdate{Message: "Issuing command"}
 
 	err := postcommand.IssueCommand(status, command)
 	if err != nil {
-		log.Fatalf("\rerror: %s", err)
+		log.Fatalf("\rerror: %s\n", err)
 	}
 
 	status <- ui.ProgressUpdate{Done: true}
-	fmt.Printf("Command \"%s\" issued successful", command)
+	fmt.Printf("Command \"%s\" issued successfully\n", command)
 	return
 }
 
 func setGetData(status chan ui.ProgressUpdate) {
+	status <- ui.ProgressUpdate{Message: "Fetching data"}
 	vehicleData, err := data.GetVehicleData(status)
 	if err != nil {
-		log.Fatalf("\rCould not get vehicle data: %s", err)
+		log.Fatalf("\rCould not get vehicle data: %s\n", err)
 	}
 
 	status <- ui.ProgressUpdate{Done: true}

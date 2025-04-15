@@ -25,7 +25,7 @@ func LoadingSpinner(status chan ProgressUpdate) {
 			}
 
 		default:
-			fmt.Printf("\r %s %s", loadSpinner[idx%10], state.Message)
+			fmt.Printf("\r %s %s  ", loadSpinner[idx%10], state.Message)
 			time.Sleep(40 * time.Millisecond)
 			idx++
 		}

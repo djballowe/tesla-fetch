@@ -3,6 +3,8 @@ package vehiclecommand
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/teslamotors/vehicle-command/pkg/account"
@@ -76,7 +78,15 @@ func handleIssueCommand(ctx context.Context, car vehicle.Vehicle, command string
 }
 
 func getPrivateKey() (protocol.ECDHPrivateKey, error) {
-	privateKey, err := protocol.LoadPrivateKey("./.temp/private-key.pem")
+	rootDir, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+
+	path := filepath.Dir(rootDir)
+	keyPath := filepath.Join(path, ".temp/private-key.pem")
+
+	privateKey, err := protocol.LoadPrivateKey(keyPath)
 	if err != nil {
 		return nil, err
 	}

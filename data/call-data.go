@@ -22,8 +22,6 @@ func CallGetVehicleData(token auth.Token, status chan ui.ProgressUpdate) (*Vehic
 		return nil, err
 	}
 
-	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Vehicle State: %s", vehicleState.State)}
-
 	if vehicleState.State != "online" {
 		err := vehicle.PollWake(token, status)
 		if err != nil {
