@@ -32,7 +32,7 @@ func loadEnvConfig() (*Config, error) {
 	return config, nil
 }
 
-func CallAuth() (*Token, error) {
+func (a *AuthService) CallAuth() (*Token, error) {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/authorize")
 	if err != nil {
 		log.Fatalf("Malformed auth url: %s", err)
@@ -69,7 +69,7 @@ func CallAuth() (*Token, error) {
 		return nil, err
 	}
 
-	store, err := NewTokeStore(config.Passphrase)
+	store, err := a.NewTokenStore(config.Passphrase)
 	if err != nil {
 		return nil, err
 	}

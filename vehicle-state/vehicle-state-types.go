@@ -5,7 +5,9 @@ import (
 	"tesla-app/ui"
 )
 
-type VehicleApi interface {
+type VehicleService struct{}
+
+type VehicleMethods interface {
 	VehicleState(token auth.Token) (*VehicleStateResponse, error)
 	PollWake(token auth.Token, status chan ui.ProgressUpdate) error
 }

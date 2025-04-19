@@ -7,22 +7,24 @@ import (
 	"net/http"
 	"os"
 	"tesla-app/auth"
+	interfacs "tesla-app/common"
 	"tesla-app/ui"
+	"tesla-app/vehicle-state"
 )
 
-func CallGetVehicleData(token auth.Token, status chan ui.ProgressUpdate, vehicleMethods VehicleAPI) (*VehicleData, error) {
+func CallGetVehicleData(token auth.Token, status chan ui.ProgressUpdate, vehicleDataService interfacs.VehicleDataServcice) (*VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
 	var apiResponse = &VehicleResponse{}
 
-	vehicleState, err := vehicleMethods.VehicleState(token)
+	vehicleState, err := vehicle.VehicleMethods.VehicleState(vehicleDataService.VehicleMethods, token)
 	if err != nil {
 		return nil, err
 	}
 
 	if vehicleState.State != "online" {
-		err := vehicleMethods.PollWake(token, status)
+		err := vehicle.VehicleMethods.PollWake(vehicleDataService.VehicleMethods, token, status)
 		if err != nil {
 			return nil, err
 		}
