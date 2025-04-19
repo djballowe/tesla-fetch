@@ -314,4 +314,3 @@ type VehicleResponse struct {
 		} `json:"vehicle_state"`
 	} `json:"response"`
 }
-

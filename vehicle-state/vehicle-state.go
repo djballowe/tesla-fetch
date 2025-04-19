@@ -10,7 +10,11 @@ import (
 	"tesla-app/auth"
 )
 
-func VehicleState(token auth.Token) (*VehicleStateResponse, error) {
+var (
+	VehicleStateFunc = vehicleStateData
+)
+
+func vehicleStateData(token auth.Token) (*VehicleStateResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
@@ -56,4 +60,8 @@ func VehicleState(token auth.Token) (*VehicleStateResponse, error) {
 	}
 
 	return vehicleState, nil
+}
+
+func VehicleState(token auth.Token) (*VehicleStateResponse, error) {
+	return VehicleStateFunc(token)
 }

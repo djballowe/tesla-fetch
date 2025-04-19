@@ -1,5 +1,15 @@
 package vehicle
 
+import (
+	"tesla-app/auth"
+	"tesla-app/ui"
+)
+
+type VehicleApi interface {
+	VehicleState(token auth.Token) (*VehicleStateResponse, error)
+	PollWake(token auth.Token, status chan ui.ProgressUpdate) error
+}
+
 type VehicleStateResponse struct {
 	State string
 	Vin   string

@@ -1,8 +1,16 @@
 package auth
 
 import (
+	"tesla-app/ui"
 	"time"
 )
+
+type AuthApi interface {
+	CheckLogin(status chan ui.ProgressUpdate) (*Token, error)
+	RefreshToken(refreshToken string) (*Token, error)
+	NewTokenStore(code string) (*TokenStore, error)
+	CallAuth() (*Config, error)
+}
 
 type AuthResponse struct {
 	CallbackUrl string `json:"callback_url"`

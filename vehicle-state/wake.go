@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+var (
+	PollWakeDataFunc = pollWakeData
+)
+
 func Wake(token auth.Token) (*WakeResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
@@ -54,7 +58,7 @@ func Wake(token auth.Token) (*WakeResponse, error) {
 	return wakeResponse, nil
 }
 
-func PollWake(token auth.Token, status chan ui.ProgressUpdate) error {
+func pollWakeData(token auth.Token, status chan ui.ProgressUpdate) error {
 	status <- ui.ProgressUpdate{Message: "Waking vehicle"}
 	state := "offline"
 	timeout := time.After(30 * time.Second)
@@ -76,4 +80,8 @@ func PollWake(token auth.Token, status chan ui.ProgressUpdate) error {
 			}
 		}
 	}
+}
+
+func PollWake(token auth.Token, status chan ui.ProgressUpdate) error {
+	return PollWakeDataFunc(token, status)
 }

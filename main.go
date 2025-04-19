@@ -3,14 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"path/filepath"
+	"tesla-app/auth"
 	drawlogo "tesla-app/draw-status"
 	postcommand "tesla-app/post-command"
 	"tesla-app/ui"
-	data "tesla-app/vehicle-data"
+	"tesla-app/vehicle-state"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -63,9 +65,27 @@ func setCommand(status chan ui.ProgressUpdate, command string) {
 	return
 }
 
+type VehicleDataController struct {
+	vehicleMethods vehicle.VehicleApi
+	authMethods    auth.AuthApi
+}
+
+func vehicleDataController(vehicleMethods vehicle.VehicleApi, authMethods auth.AuthApi) *VehicleDataController {
+	return &VehicleDataController{
+		vehicleMethods: vehicleMethods,
+		authMethods:    authMethods,
+	}
+}
+
 func setGetData(status chan ui.ProgressUpdate) {
 	status <- ui.ProgressUpdate{Message: "Fetching data"}
-	vehicleData, err := data.GetVehicleData(status)
+
+	// get the interface to work
+	vehicleClient := vehicle.VehicleApi
+	authClient := auth.AuthApi
+	service := vehicleDataController(vehicleClient, authClient)
+
+	vehicleData, err := data.GetVehicleData(status, service)
 	if err != nil {
 		log.Fatalf("\rCould not get vehicle data: %s\n", err)
 	}
