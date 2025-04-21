@@ -3,21 +3,20 @@ package vehiclecommand
 import (
 	"fmt"
 	"tesla-app/auth"
+	"tesla-app/dependencies"
 	"tesla-app/ui"
-	"tesla-app/vehicle-state"
 )
 
-func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string) error {
-	vehicleState, err := vehicle.VehicleState(token)
+func IssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleDataService *dependencies.VehicleDataService) error {
+	vehicleState, err := vehicleDataService.VehicleMethods.VehicleState(token)
 	if err != nil {
 		return err
 	}
 
-	state := vehicleState.State
 	vin := vehicleState.Vin
 
-	if state != "online" {
-		err := vehicle.PollWake(token, status)
+	if vehicleState.State != "online" {
+		err := vehicleDataService.VehicleMethods.PollWake(token, status)
 		if err != nil {
 			return err
 		}

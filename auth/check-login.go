@@ -5,7 +5,7 @@ import (
 	"tesla-app/ui"
 )
 
-func (a *AuthService) CheckLogin(status chan ui.ProgressUpdate) (*Token, error) {
+func CheckLogin(status chan ui.ProgressUpdate) (*Token, error) {
 	passphrase := os.Getenv("PASSPHRASE")
 	store := TokenStore{}
 	token, err := store.LoadTokens(passphrase)
