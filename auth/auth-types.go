@@ -14,7 +14,6 @@ type AuthMethods interface {
 	NewTokenStore(code string) (*TokenStore, error)
 }
 
-
 type AuthResponse struct {
 	CallbackUrl string `json:"callback_url"`
 }

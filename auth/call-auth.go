@@ -17,21 +17,6 @@ import (
 	"time"
 )
 
-func loadEnvConfig() (*Config, error) {
-	config := &Config{
-		ClientId:     os.Getenv("CLIENT_ID"),
-		ClientSecret: os.Getenv("CLIENT_SECRET"),
-		Audience:     os.Getenv("AUDIENCE"),
-		RedirectUri:  os.Getenv("REDIRECT_URI"),
-		Scope:        os.Getenv("SCOPES"),
-		Passphrase:   os.Getenv("PASSPHRASE"),
-	}
-	if config.ClientId == "" || config.ClientSecret == "" || config.Audience == "" || config.RedirectUri == "" || config.Scope == "" {
-		return nil, fmt.Errorf("Missing environment variables")
-	}
-	return config, nil
-}
-
 func (a *AuthService) CallAuth() (*Token, error) {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/authorize")
 	if err != nil {
@@ -151,7 +136,20 @@ func callback(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// helpers
+func loadEnvConfig() (*Config, error) {
+	config := &Config{
+		ClientId:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("CLIENT_SECRET"),
+		Audience:     os.Getenv("AUDIENCE"),
+		RedirectUri:  os.Getenv("REDIRECT_URI"),
+		Scope:        os.Getenv("SCOPES"),
+		Passphrase:   os.Getenv("PASSPHRASE"),
+	}
+	if config.ClientId == "" || config.ClientSecret == "" || config.Audience == "" || config.RedirectUri == "" || config.Scope == "" {
+		return nil, fmt.Errorf("Missing environment variables")
+	}
+	return config, nil
+}
 
 func exchangeCodeForToken(code string) (*Token, error) {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/token")
