@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func NewTokeStore(code string) (*TokenStore, error) {
+func (a *AuthService) NewTokenStore(code string) (*TokenStore, error) {
 	if code == "" {
 		return nil, errors.New("missing or invalid passcode")
 	}

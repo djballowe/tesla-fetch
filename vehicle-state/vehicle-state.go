@@ -10,7 +10,7 @@ import (
 	"tesla-app/auth"
 )
 
-func VehicleState(token auth.Token) (*VehicleStateResponse, error) {
+func (v *VehicleService) VehicleState(token auth.Token) (*VehicleStateResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 

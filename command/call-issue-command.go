@@ -7,17 +7,16 @@ import (
 	"tesla-app/vehicle-state"
 )
 
-func CallIssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string) error {
-	vehicleState, err := vehicle.VehicleState(token)
+func IssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error {
+	vehicleState, err := vehicleService.VehicleState(token)
 	if err != nil {
 		return err
 	}
 
-	state := vehicleState.State
 	vin := vehicleState.Vin
 
-	if state != "online" {
-		err := vehicle.PollWake(token, status)
+	if vehicleState.State != "online" {
+		err := vehicleService.PollWake(token, status)
 		if err != nil {
 			return err
 		}

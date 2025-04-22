@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func RefreshToken(refreshToken string) (*Token, error) {
+func (a *AuthService) RefreshToken(refreshToken string) (*Token, error) {
 	config, err := loadEnvConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %s", err)
@@ -45,7 +45,7 @@ func RefreshToken(refreshToken string) (*Token, error) {
 	}
 	tokenResponse.CreateAt = time.Now()
 
-	store, err := NewTokeStore(config.Passphrase)
+	store, err := a.NewTokenStore(config.Passphrase)
 	if err != nil {
 		return nil, err
 	}
