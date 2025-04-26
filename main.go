@@ -22,7 +22,7 @@ type AppDependencies struct {
 	VehicleService *vehicle.VehicleService
 	DrawStaus      func(vehicleData *data.VehicleData)
 	IssueCommand   func(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
-	GetData        func(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService *vehicle.VehicleService) (*data.VehicleData, error)
+	GetData        func(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods) (*data.VehicleData, error)
 }
 
 func main() {
