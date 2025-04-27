@@ -11,7 +11,6 @@ import (
 	"tesla-app/vehicle-state"
 )
 
-// actually run this and change to using the interface type instead of the concrete method
 func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods) (*VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
