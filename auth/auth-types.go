@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"tesla-app/ui"
+	"tfetch/ui"
 	"time"
 )
 

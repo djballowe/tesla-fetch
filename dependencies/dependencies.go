@@ -1,7 +1,7 @@
 package dependencies
 
 import (
-	"tesla-app/vehicle-state"
+	"tfetch/vehicle-state"
 )
 
 // vehicle data service

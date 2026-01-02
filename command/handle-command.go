@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
 	"github.com/teslamotors/vehicle-command/pkg/vehicle"

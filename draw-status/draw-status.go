@@ -3,7 +3,7 @@ package drawstatus
 import (
 	"fmt"
 	"math"
-	"tesla-app/data"
+	"tfetch/data"
 )
 
 const (

@@ -1,4 +1,4 @@
-module tesla-app
+module tfetch
 
 go 1.22.5
 

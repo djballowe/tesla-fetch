@@ -1,8 +1,8 @@
 package vehicle
 
 import (
-	"tesla-app/auth"
-	"tesla-app/ui"
+	"tfetch/auth"
+	"tfetch/ui"
 )
 
 type VehicleService struct{}

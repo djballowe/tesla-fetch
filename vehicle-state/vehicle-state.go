@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"tesla-app/auth"
+	"tfetch/auth"
 )
 
 func (v *VehicleService) VehicleState(token auth.Token) (*VehicleStateResponse, error) {

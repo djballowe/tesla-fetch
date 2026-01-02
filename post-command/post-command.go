@@ -1,9 +1,9 @@
 package postcommand
 
 import (
-	"tesla-app/auth"
-	vehiclecommand "tesla-app/command"
-	"tesla-app/ui"
+	"tfetch/auth"
+	vehiclecommand "tfetch/command"
+	"tfetch/ui"
 )
 
 func IssueCommand(status chan ui.ProgressUpdate, command string) error {
