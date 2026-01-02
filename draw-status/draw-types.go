@@ -1,6 +1,6 @@
 package drawstatus
 
-import "tesla-app/data"
+import "tfetch/data"
 
 type DrawService struct{}
 

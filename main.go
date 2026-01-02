@@ -2,17 +2,16 @@ package main
 
 import (
 	"errors"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"path/filepath"
-	"tesla-app/auth"
-	vehiclecommand "tesla-app/command"
-	"tesla-app/data"
-	drawstatus "tesla-app/draw-status"
-	"tesla-app/ui"
-	"tesla-app/vehicle-state"
-
-	"github.com/joho/godotenv"
+	"tfetch/auth"
+	vehiclecommand "tfetch/command"
+	"tfetch/data"
+	drawstatus "tfetch/draw-status"
+	"tfetch/ui"
+	"tfetch/vehicle-state"
 )
 
 // extract get data and issue command into their own services and abstract common api logic to its own package

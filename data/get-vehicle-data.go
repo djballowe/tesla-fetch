@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"tesla-app/auth"
-	"tesla-app/ui"
-	"tesla-app/vehicle-state"
+	"tfetch/auth"
+	"tfetch/ui"
+	"tfetch/vehicle-state"
 )
 
 var ErrNoStateFile = errors.New("no state file exists")

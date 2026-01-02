@@ -2,7 +2,7 @@ package auth
 
 import (
 	"os"
-	"tesla-app/ui"
+	"tfetch/ui"
 )
 
 func (a *AuthService) CheckLogin(status chan ui.ProgressUpdate) (*Token, error) {

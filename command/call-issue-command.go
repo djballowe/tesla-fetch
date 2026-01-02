@@ -2,9 +2,9 @@ package vehiclecommand
 
 import (
 	"fmt"
-	"tesla-app/auth"
-	"tesla-app/ui"
-	"tesla-app/vehicle-state"
+	"tfetch/auth"
+	"tfetch/ui"
+	"tfetch/vehicle-state"
 )
 
 func IssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error {

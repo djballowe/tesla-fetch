@@ -3,7 +3,7 @@ package drawstatus
 import (
 	"encoding/json"
 	"fmt"
-	"tesla-app/data"
+	"tfetch/data"
 )
 
 func (d *DrawService) DrawStatusSimple(vehicleData *data.VehicleData) error {
