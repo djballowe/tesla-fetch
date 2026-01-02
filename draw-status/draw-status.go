@@ -1,4 +1,4 @@
-package drawlogo
+package drawstatus
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ const (
 	reset = "\033[0m"
 )
 
-func DrawStatus(vehicleData *data.VehicleData) {
+func (d *DrawService) DrawStatus(vehicleData *data.VehicleData) {
 	logo := []string{
 		"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀",
 		"⢀⣀⣤⣤⣶⡶⠿⠟⠛⠛⠛⠛⠛⠛⠛⠛⠻⠿⢶⣶⣤⣤⣀⡀",
@@ -28,12 +28,12 @@ func DrawStatus(vehicleData *data.VehicleData) {
 		"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ",
 	}
 
-	info := buildInfo(vehicleData)
+	info := d.buildInfo(vehicleData)
 
-	draw(logo, info)
+	d.draw(logo, info)
 }
 
-func buildInfo(vehicleData *data.VehicleData) []string {
+func (d *DrawService) buildInfo(vehicleData *data.VehicleData) []string {
 	carMap := map[string]string{
 		"models": "Model S",
 		"model3": "Model 3",
@@ -69,7 +69,7 @@ func buildInfo(vehicleData *data.VehicleData) []string {
 	return info
 }
 
-func draw(logo []string, info []string) {
+func (d *DrawService) draw(logo []string, info []string) {
 	logoSize := len(logo)
 	infoSize := len(info)
 	longest := findLongestLine(logo)

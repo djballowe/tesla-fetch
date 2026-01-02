@@ -6,16 +6,20 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"tesla-app/auth"
 	"tesla-app/ui"
 	"tesla-app/vehicle-state"
 )
 
-func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods) (*VehicleData, error) {
+var ErrNoStateFile = errors.New("no state file exists")
+
+func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
-	var apiResponse = &VehicleResponse{}
+	apiResponse := &VehicleResponse{}
+	vehicleData := &VehicleData{}
 
 	vehicleState, err := vehicleDataService.VehicleState(token)
 	if err != nil {
@@ -23,6 +27,18 @@ func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleData
 	}
 
 	if vehicleState.State != "online" {
+		if flag == "-w" {
+			err = getState(vehicleData)
+			if err != nil {
+				if errors.Is(err, ErrNoStateFile) {
+					fmt.Println("State file does not exist waking car to initialize state")
+				} else {
+					return nil, err
+				}
+			} else {
+				return vehicleData, nil
+			}
+		}
 		err := vehicleDataService.PollWake(token, status)
 		if err != nil {
 			return nil, err
@@ -57,7 +73,7 @@ func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleData
 		return nil, err
 	}
 
-	vehicleData := &VehicleData{
+	vehicleData = &VehicleData{
 		State:                apiResponse.Response.State,
 		BatteryLevel:         apiResponse.Response.ChargeState.BatteryLevel,
 		BatteryRange:         apiResponse.Response.ChargeState.BatteryRange,
@@ -80,5 +96,60 @@ func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleData
 		CarSpecialType:       apiResponse.Response.VehicleConfig.CarSpecialType,
 	}
 
+	vehicleJson, err := json.Marshal(vehicleData)
+	if err != nil {
+		return nil, err
+	}
+
+	filePath, err := getStateFilePath()
+	if err != nil {
+		return nil, err
+	}
+
+	err = os.WriteFile(filePath, vehicleJson, 0600)
+	if err != nil {
+		return nil, err
+	}
+
 	return vehicleData, nil
+}
+
+func getStateFilePath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	localDir := filepath.Join(homeDir, ".local", "share", "tfetch")
+
+	err = os.MkdirAll(localDir, 0700)
+	if err != nil {
+		return "", err
+	}
+
+	statePath := filepath.Join(localDir, "vehicle-state.json")
+
+	return statePath, nil
+}
+
+func getState(vehicleData *VehicleData) error {
+	statePath, err := getStateFilePath()
+	if err != nil {
+		return err
+	}
+
+	data, err := os.ReadFile(statePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return ErrNoStateFile
+		}
+		return err
+	}
+
+	err = json.Unmarshal(data, vehicleData)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
