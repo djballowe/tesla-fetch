@@ -1,4 +1,4 @@
-package drawlogo
+package drawstatus
 
 import (
 	"fmt"

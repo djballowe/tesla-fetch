@@ -1,8 +1,9 @@
 package main
 
 import (
-	"errors"
+	// "errors"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,8 +13,6 @@ import (
 	drawlogo "tesla-app/draw-status"
 	"tesla-app/ui"
 	"tesla-app/vehicle-state"
-
-	"github.com/joho/godotenv"
 )
 
 type AppDependencies struct {
@@ -22,14 +21,11 @@ type AppDependencies struct {
 	VehicleService *vehicle.VehicleService
 	DrawStaus      func(vehicleData *data.VehicleData)
 	IssueCommand   func(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
-	GetData        func(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods) (*data.VehicleData, error)
+	GetData        func(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
 }
 
 func main() {
 	args := os.Args
-	if len(args) > 2 {
-		log.Fatalf("\rerror: %v", errors.New("can only issue one command"))
-	}
 
 	err := loadEnv()
 	if err != nil {
@@ -58,33 +54,42 @@ func main() {
 }
 
 func runApp(app AppDependencies, args []string) error {
+	// Change this probably fine for now
+
+	flag := ""
+	if len(args) > 1 {
+		flag = args[1]
+	}
+
 	vehicleService := app.VehicleService
 	token, err := app.AuthService.CheckLogin(app.Status)
 	if err != nil {
 		return err
 	}
 
-	if len(args) == 2 {
-		app.Status <- ui.ProgressUpdate{Message: "Issuing command"}
-		command := args[1]
+	// if len(args) == 2 {
+	// 	app.Status <- ui.ProgressUpdate{Message: "Issuing command"}
+	// 	command := args[1]
+	//
+	// 	err = app.IssueCommand(app.Status, *token, command, vehicleService)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	//
+	// 	fmt.Printf("\rCommand %s issued successfully\n", command)
+	// }
 
-		err = app.IssueCommand(app.Status, *token, command, vehicleService)
-		if err != nil {
-			return err
-		}
+	app.Status <- ui.ProgressUpdate{Message: "Fetching data"}
 
-		fmt.Printf("\rCommand %s issued successfully\n", command)
-	} else {
-		app.Status <- ui.ProgressUpdate{Message: "Fetching data"}
-
-		vehicleData, err := app.GetData(app.Status, *token, vehicleService)
-		if err != nil {
-			return err
-		}
-
-		app.Status <- ui.ProgressUpdate{Done: true}
-		app.DrawStaus(vehicleData)
+	vehicleData, err := app.GetData(app.Status, *token, vehicleService, flag)
+	if err != nil {
+		return err
 	}
+
+	app.Status <- ui.ProgressUpdate{Done: true}
+	fmt.Printf("%+v\n", vehicleData)
+	// simple draw function here
+	app.DrawStaus(vehicleData)
 
 	return nil
 }
