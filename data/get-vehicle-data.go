@@ -101,8 +101,6 @@ func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleData
 		return nil, err
 	}
 
-	fmt.Println("here")
-
 	filePath, err := getStateFilePath()
 	if err != nil {
 		return nil, err

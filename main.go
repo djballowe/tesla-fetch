@@ -1,27 +1,32 @@
 package main
 
 import (
-	// "errors"
-	"fmt"
-	"github.com/joho/godotenv"
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
 	"tesla-app/auth"
 	vehiclecommand "tesla-app/command"
 	"tesla-app/data"
-	drawlogo "tesla-app/draw-status"
+	drawstatus "tesla-app/draw-status"
 	"tesla-app/ui"
 	"tesla-app/vehicle-state"
+
+	"github.com/joho/godotenv"
 )
 
+// extract get data and issue command into their own services and abstract common api logic to its own package
+
+var ErrorTooManyArgs = errors.New("usage too many args provided")
+var ErrorInvalidArgs = errors.New("usage invalid arguments")
+
 type AppDependencies struct {
-	Status         chan ui.ProgressUpdate
-	AuthService    *auth.AuthService
-	VehicleService *vehicle.VehicleService
-	DrawStaus      func(vehicleData *data.VehicleData)
-	IssueCommand   func(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
-	GetData        func(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
+	Status            chan ui.ProgressUpdate
+	AuthService       auth.AuthMethods
+	VehicleService    vehicle.VehicleMethods
+	DrawStatusService drawstatus.DrawMethods
+	IssueCommand      func(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
+	GetData           func(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
 }
 
 func main() {
@@ -38,12 +43,12 @@ func main() {
 	go ui.LoadingSpinner(status)
 
 	app := AppDependencies{
-		Status:         status,
-		AuthService:    &auth.AuthService{},
-		VehicleService: &vehicle.VehicleService{},
-		DrawStaus:      drawlogo.DrawStatus,
-		IssueCommand:   vehiclecommand.IssueCommand,
-		GetData:        data.GetVehicleData,
+		Status:            status,
+		AuthService:       &auth.AuthService{},
+		VehicleService:    &vehicle.VehicleService{},
+		DrawStatusService: &drawstatus.DrawService{},
+		IssueCommand:      vehiclecommand.IssueCommand,
+		GetData:           data.GetVehicleData,
 	}
 
 	err = runApp(app, args)
@@ -54,11 +59,9 @@ func main() {
 }
 
 func runApp(app AppDependencies, args []string) error {
-	// Change this probably fine for now
-
-	flag := ""
-	if len(args) > 1 {
-		flag = args[1]
+	flag, err := validateFlags(args)
+	if err != nil {
+		return err
 	}
 
 	vehicleService := app.VehicleService
@@ -67,6 +70,7 @@ func runApp(app AppDependencies, args []string) error {
 		return err
 	}
 
+	// no issue command logic right now focus on refactor
 	// if len(args) == 2 {
 	// 	app.Status <- ui.ProgressUpdate{Message: "Issuing command"}
 	// 	command := args[1]
@@ -87,9 +91,14 @@ func runApp(app AppDependencies, args []string) error {
 	}
 
 	app.Status <- ui.ProgressUpdate{Done: true}
-	fmt.Printf("%+v\n", vehicleData)
-	// simple draw function here
-	app.DrawStaus(vehicleData)
+	if flag == "-w" {
+		err = app.DrawStatusService.DrawStatusSimple(vehicleData)
+		if err != nil {
+			return err
+		}
+	} else {
+		app.DrawStatusService.DrawStatus(vehicleData)
+	}
 
 	return nil
 }
@@ -109,4 +118,26 @@ func loadEnv() error {
 	}
 
 	return nil
+}
+
+func validateFlags(args []string) (string, error) {
+	// one flag allowed for now
+	validFlags := map[string]bool{
+		"-w": true,
+	}
+	argLimit := 2
+
+	flag := ""
+
+	if len(args) > argLimit {
+		return "", ErrorTooManyArgs
+	} else if !validFlags[args[1]] {
+		return "", ErrorInvalidArgs
+	}
+
+	if len(args) > 0 && validFlags[args[1]] {
+		flag = args[1]
+	}
+
+	return flag, nil
 }
