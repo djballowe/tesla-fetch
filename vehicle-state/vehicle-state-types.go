@@ -9,7 +9,7 @@ type VehicleService struct{}
 
 type VehicleMethods interface {
 	VehicleState(token auth.Token) (*VehicleStateResponse, error)
-	PollWake(token auth.Token, status chan ui.ProgressUpdate) error
+	PollWake(token auth.Token, status ui.StatusLoggerMethods) error
 }
 
 type VehicleStateResponse struct {

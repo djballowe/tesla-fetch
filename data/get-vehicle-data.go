@@ -14,7 +14,7 @@ import (
 
 var ErrNoStateFile = errors.New("no state file exists")
 
-func GetVehicleData(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*VehicleData, error) {
+func GetVehicleData(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 

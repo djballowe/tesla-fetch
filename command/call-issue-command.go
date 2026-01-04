@@ -7,7 +7,7 @@ import (
 	"tfetch/vehicle-state"
 )
 
-func IssueCommand(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error {
+func IssueCommand(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService *vehicle.VehicleService) error {
 	vehicleState, err := vehicleService.VehicleState(token)
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func IssueCommand(status chan ui.ProgressUpdate, token auth.Token, command strin
 		return fmt.Errorf("\rcould not issue command: %s", err.Error())
 	}
 
-	status <- ui.ProgressUpdate{Message: fmt.Sprintf("Command %s issued successfully", command)}
+	status.Log("Command %s issued successfully")
 
 	return nil
 }

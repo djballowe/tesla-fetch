@@ -5,11 +5,6 @@ import (
 	"time"
 )
 
-type ProgressUpdate struct {
-	Message string
-	Done    bool
-}
-
 func LoadingSpinner(status chan ProgressUpdate) {
 	loadSpinner := [10]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	idx := 0

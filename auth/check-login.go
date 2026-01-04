@@ -5,7 +5,7 @@ import (
 	"tfetch/ui"
 )
 
-func (a *AuthService) CheckLogin(status chan ui.ProgressUpdate) (*Token, error) {
+func (a *AuthService) CheckLogin(status ui.StatusLoggerMethods) (*Token, error) {
 	passphrase := os.Getenv("PASSPHRASE")
 	store := TokenStore{}
 	token, err := store.LoadTokens(passphrase)
@@ -19,7 +19,7 @@ func (a *AuthService) CheckLogin(status chan ui.ProgressUpdate) (*Token, error) 
 	}
 
 	if store.IsExpired(token.CreateAt, token.ExpiresIn) {
-		status <- ui.ProgressUpdate{Message: "Token expired, refreshing"}
+		status.Log("Token expired, refreshing")
 		token, err = a.RefreshToken(token.RefreshToken)
 		if err != nil {
 			return nil, err
