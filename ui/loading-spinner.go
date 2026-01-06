@@ -5,11 +5,6 @@ import (
 	"time"
 )
 
-type ProgressUpdate struct {
-	Message string
-	Done    bool
-}
-
 func LoadingSpinner(status chan ProgressUpdate) {
 	loadSpinner := [10]string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	idx := 0
@@ -17,7 +12,7 @@ func LoadingSpinner(status chan ProgressUpdate) {
 
 	for {
 		select {
-		case state := <-status:
+		case state = <-status:
 			if state.Done {
 				fmt.Printf("\r                                            ")
 				fmt.Printf("\r")

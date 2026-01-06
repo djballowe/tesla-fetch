@@ -16,16 +16,16 @@ import (
 
 // extract get data and issue command into their own services and abstract common api logic to its own package
 
-var ErrorTooManyArgs = errors.New("usage too many args provided")
-var ErrorInvalidArgs = errors.New("usage invalid arguments")
+var ErrorTooManyArgs = errors.New("too many args provided")
+var ErrorInvalidArgs = errors.New("invalid arguments")
 
 type AppDependencies struct {
-	Status            chan ui.ProgressUpdate
+	StatusLogger      ui.StatusLoggerMethods
 	AuthService       auth.AuthMethods
 	VehicleService    vehicle.VehicleMethods
 	DrawStatusService drawstatus.DrawMethods
-	IssueCommand      func(status chan ui.ProgressUpdate, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
-	GetData           func(status chan ui.ProgressUpdate, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
+	IssueCommand      func(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
+	GetData           func(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
 }
 
 func main() {
@@ -36,13 +36,23 @@ func main() {
 		log.Fatalf("\rError loading env: %s\n", err)
 	}
 
-	status := make(chan ui.ProgressUpdate)
-	defer close(status)
+	flag, err := validateFlags(args)
+	if err != nil {
+		log.Fatalf("\rUsage: %s", err)
+	}
 
-	go ui.LoadingSpinner(status)
+	var statusLogger ui.StatusLoggerMethods
+	if flag == "-w" {
+		statusLogger = ui.NewNoopLogger()
+	} else {
+		status := make(chan ui.ProgressUpdate)
+		statusLogger = ui.NewStatusLogger(status)
+		defer close(status)
+		go ui.LoadingSpinner(status)
+	}
 
 	app := AppDependencies{
-		Status:            status,
+		StatusLogger:      statusLogger,
 		AuthService:       &auth.AuthService{},
 		VehicleService:    &vehicle.VehicleService{},
 		DrawStatusService: &drawstatus.DrawService{},
@@ -50,21 +60,16 @@ func main() {
 		GetData:           data.GetVehicleData,
 	}
 
-	err = runApp(app, args)
+	err = runApp(app, flag)
 	if err != nil {
 		log.Fatalf("\rApp run error: %s\n", err)
 	}
 	return
 }
 
-func runApp(app AppDependencies, args []string) error {
-	flag, err := validateFlags(args)
-	if err != nil {
-		return err
-	}
-
+func runApp(app AppDependencies, flag string) error {
 	vehicleService := app.VehicleService
-	token, err := app.AuthService.CheckLogin(app.Status)
+	token, err := app.AuthService.CheckLogin(app.StatusLogger)
 	if err != nil {
 		return err
 	}
@@ -82,14 +87,13 @@ func runApp(app AppDependencies, args []string) error {
 	// 	fmt.Printf("\rCommand %s issued successfully\n", command)
 	// }
 
-	app.Status <- ui.ProgressUpdate{Message: "Fetching data"}
-
-	vehicleData, err := app.GetData(app.Status, *token, vehicleService, flag)
+	app.StatusLogger.Log("Fetching Data")
+	vehicleData, err := app.GetData(app.StatusLogger, *token, vehicleService, flag)
 	if err != nil {
 		return err
 	}
 
-	app.Status <- ui.ProgressUpdate{Done: true}
+	app.StatusLogger.Done()
 	if flag == "-w" {
 		err = app.DrawStatusService.DrawStatusSimple(vehicleData)
 		if err != nil {
@@ -130,11 +134,11 @@ func validateFlags(args []string) (string, error) {
 
 	if len(args) > argLimit {
 		return "", ErrorTooManyArgs
-	} else if !validFlags[args[1]] {
+	} else if len(args) > 1 && !validFlags[args[1]] {
 		return "", ErrorInvalidArgs
 	}
 
-	if len(args) > 0 && validFlags[args[1]] {
+	if len(args) > 1 && validFlags[args[1]] {
 		flag = args[1]
 	}
 

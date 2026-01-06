@@ -54,8 +54,8 @@ func Wake(token auth.Token) (*WakeResponse, error) {
 	return wakeResponse, nil
 }
 
-func (p *VehicleService) PollWake(token auth.Token, status chan ui.ProgressUpdate) error {
-	status <- ui.ProgressUpdate{Message: "Waking vehicle"}
+func (p *VehicleService) PollWake(token auth.Token, status ui.StatusLoggerMethods) error {
+	status.Log("Waking Vehicle")
 	state := "offline"
 	timeout := time.After(30 * time.Second)
 	ticker := time.NewTicker(5 * time.Second)

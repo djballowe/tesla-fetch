@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-type AuthService struct {}
+type AuthService struct{}
 
 type AuthMethods interface {
 	CallAuth() (*Token, error)
-	CheckLogin(status chan ui.ProgressUpdate) (*Token, error)
+	CheckLogin(statusLogger ui.StatusLoggerMethods) (*Token, error)
 	RefreshToken(refreshToken string) (*Token, error)
 	NewTokenStore(code string) (*TokenStore, error)
 }
