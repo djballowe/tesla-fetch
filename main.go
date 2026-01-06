@@ -15,7 +15,6 @@ import (
 )
 
 // extract get data and issue command into their own services and abstract common api logic to its own package
-// make the status updates its own service current implimentation is messy
 
 var ErrorTooManyArgs = errors.New("too many args provided")
 var ErrorInvalidArgs = errors.New("invalid arguments")
@@ -43,13 +42,13 @@ func main() {
 	}
 
 	var statusLogger ui.StatusLoggerMethods
-	if flag != "-w" {
+	if flag == "-w" {
+		statusLogger = ui.NewNoopLogger()
+	} else {
 		status := make(chan ui.ProgressUpdate)
 		statusLogger = ui.NewStatusLogger(status)
 		defer close(status)
 		go ui.LoadingSpinner(status)
-	} else {
-		statusLogger = ui.NewNoopLogger()
 	}
 
 	app := AppDependencies{

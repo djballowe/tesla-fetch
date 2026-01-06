@@ -12,7 +12,7 @@ func LoadingSpinner(status chan ProgressUpdate) {
 
 	for {
 		select {
-		case state := <-status:
+		case state = <-status:
 			if state.Done {
 				fmt.Printf("\r                                            ")
 				fmt.Printf("\r")
