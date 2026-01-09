@@ -14,13 +14,12 @@ import (
 	"tfetch/vehicle-state"
 )
 
-// extract get data and issue command into their own services and abstract common api logic to its own package
-
 var ErrorTooManyArgs = errors.New("too many args provided")
 var ErrorInvalidArgs = errors.New("invalid arguments")
 
 type AppDependencies struct {
 	StatusLogger      ui.StatusLoggerMethods
+	Flag              string
 	AuthService       auth.AuthMethods
 	VehicleService    vehicle.VehicleMethods
 	DrawStatusService drawstatus.DrawMethods
@@ -53,6 +52,7 @@ func main() {
 
 	app := AppDependencies{
 		StatusLogger:      statusLogger,
+		Flag:              flag,
 		AuthService:       &auth.AuthService{},
 		VehicleService:    &vehicle.VehicleService{},
 		DrawStatusService: &drawstatus.DrawService{},
@@ -60,14 +60,14 @@ func main() {
 		GetData:           data.GetVehicleData,
 	}
 
-	err = runApp(app, flag)
+	err = runApp(app)
 	if err != nil {
-		log.Fatalf("\rApp run error: %s\n", err)
+		log.Fatalf("\r%s\n", err)
 	}
 	return
 }
 
-func runApp(app AppDependencies, flag string) error {
+func runApp(app AppDependencies) error {
 	vehicleService := app.VehicleService
 	token, err := app.AuthService.CheckLogin(app.StatusLogger)
 	if err != nil {
@@ -88,13 +88,13 @@ func runApp(app AppDependencies, flag string) error {
 	// }
 
 	app.StatusLogger.Log("Fetching Data")
-	vehicleData, err := app.GetData(app.StatusLogger, *token, vehicleService, flag)
+	vehicleData, err := app.GetData(app.StatusLogger, *token, vehicleService, app.Flag)
 	if err != nil {
 		return err
 	}
 
 	app.StatusLogger.Done()
-	if flag == "-w" {
+	if app.Flag == "-w" {
 		err = app.DrawStatusService.DrawStatusSimple(vehicleData)
 		if err != nil {
 			return err
