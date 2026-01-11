@@ -24,7 +24,7 @@ type AppDependencies struct {
 	VehicleService    vehicle.VehicleMethods
 	DrawStatusService drawstatus.DrawMethods
 	IssueCommand      func(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
-	GetData           func(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
+	GetDataHandler    func(status ui.StatusLoggerMethods, authService auth.AuthMethods, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
 }
 
 func main() {
@@ -57,7 +57,7 @@ func main() {
 		VehicleService:    &vehicle.VehicleService{},
 		DrawStatusService: &drawstatus.DrawService{},
 		IssueCommand:      vehiclecommand.IssueCommand,
-		GetData:           data.GetVehicleData,
+		GetDataHandler:    data.GetDataHandler,
 	}
 
 	err = runApp(app)
@@ -69,10 +69,11 @@ func main() {
 
 func runApp(app AppDependencies) error {
 	vehicleService := app.VehicleService
-	token, err := app.AuthService.CheckLogin(app.StatusLogger)
-	if err != nil {
-		return err
-	}
+	authService := app.AuthService
+	// token, err := app.AuthService.CheckLogin(app.StatusLogger)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// no issue command logic right now focus on refactor
 	// if len(args) == 2 {
@@ -87,8 +88,7 @@ func runApp(app AppDependencies) error {
 	// 	fmt.Printf("\rCommand %s issued successfully\n", command)
 	// }
 
-	app.StatusLogger.Log("Fetching Data")
-	vehicleData, err := app.GetData(app.StatusLogger, *token, vehicleService, app.Flag)
+	vehicleData, err := app.GetDataHandler(app.StatusLogger, authService, vehicleService, app.Flag)
 	if err != nil {
 		return err
 	}

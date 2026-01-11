@@ -1,5 +1,9 @@
 package data
 
+import "errors"
+
+var ErrNoStateFile = errors.New("no state file exists")
+
 type VehicleData struct {
 	State                string  `json:"state"`
 	BatteryLevel         int     `json:"battery_level"`

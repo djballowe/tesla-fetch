@@ -6,15 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"tfetch/auth"
 	"tfetch/ui"
 	"tfetch/vehicle-state"
 )
 
-var ErrNoStateFile = errors.New("no state file exists")
-
-func GetVehicleData(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService vehicle.VehicleMethods, flag string) (*VehicleData, error) {
+func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService vehicle.VehicleMethods) (*VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
@@ -27,18 +24,6 @@ func GetVehicleData(status ui.StatusLoggerMethods, token auth.Token, vehicleData
 	}
 
 	if vehicleState.State != "online" {
-		if flag == "-w" {
-			err = getState(vehicleData)
-			if err != nil {
-				if errors.Is(err, ErrNoStateFile) {
-					fmt.Println("State file does not exist waking car to initialize state")
-				} else {
-					return nil, err
-				}
-			} else {
-				return vehicleData, nil
-			}
-		}
 		err := vehicleDataService.PollWake(token, status)
 		if err != nil {
 			return nil, err
@@ -112,44 +97,4 @@ func GetVehicleData(status ui.StatusLoggerMethods, token auth.Token, vehicleData
 	}
 
 	return vehicleData, nil
-}
-
-func getStateFilePath() (string, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-
-	localDir := filepath.Join(homeDir, ".local", "share", "tfetch")
-
-	err = os.MkdirAll(localDir, 0700)
-	if err != nil {
-		return "", err
-	}
-
-	statePath := filepath.Join(localDir, "vehicle-state.json")
-
-	return statePath, nil
-}
-
-func getState(vehicleData *VehicleData) error {
-	statePath, err := getStateFilePath()
-	if err != nil {
-		return err
-	}
-
-	data, err := os.ReadFile(statePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return ErrNoStateFile
-		}
-		return err
-	}
-
-	err = json.Unmarshal(data, vehicleData)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
