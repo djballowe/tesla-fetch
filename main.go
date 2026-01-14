@@ -2,16 +2,19 @@ package main
 
 import (
 	"errors"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"path/filepath"
+	apitypes "tfetch/api/types"
+	"tfetch/api/vehicle-status"
+	"tfetch/api/wake"
 	"tfetch/auth"
 	vehiclecommand "tfetch/command"
-	"tfetch/data"
 	drawstatus "tfetch/draw-status"
+	services "tfetch/services/get-data-handler"
 	"tfetch/ui"
-	"tfetch/vehicle-state"
+
+	"github.com/joho/godotenv"
 )
 
 var ErrorTooManyArgs = errors.New("too many args provided")
@@ -21,10 +24,11 @@ type AppDependencies struct {
 	StatusLogger      ui.StatusLoggerMethods
 	Flag              string
 	AuthService       auth.AuthMethods
-	VehicleService    vehicle.VehicleMethods
+	VehicleService    apitypes.VehicleMethods
+	WakeService       apitypes.WakeMethods
 	DrawStatusService drawstatus.DrawMethods
-	IssueCommand      func(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService *vehicle.VehicleService) error
-	GetDataHandler    func(status ui.StatusLoggerMethods, authService auth.AuthMethods, vehicleDataService vehicle.VehicleMethods, flag string) (*data.VehicleData, error)
+	IssueCommand      func(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService apitypes.VehicleMethods, wakeService apitypes.WakeMethods) error
+	GetDataHandler    func(status ui.StatusLoggerMethods, authService auth.AuthMethods, vehicleService apitypes.VehicleMethods, wakeService apitypes.WakeMethods) (*apitypes.VehicleData, error)
 }
 
 func main() {
@@ -56,8 +60,9 @@ func main() {
 		AuthService:       &auth.AuthService{},
 		VehicleService:    &vehicle.VehicleService{},
 		DrawStatusService: &drawstatus.DrawService{},
+		WakeService:       &wake.WakeService{},
 		IssueCommand:      vehiclecommand.IssueCommand,
-		GetDataHandler:    data.GetDataHandler,
+		GetDataHandler:    services.GetDataHandler,
 	}
 
 	err = runApp(app)
@@ -70,6 +75,7 @@ func main() {
 func runApp(app AppDependencies) error {
 	vehicleService := app.VehicleService
 	authService := app.AuthService
+	wakeService := app.WakeService
 	// token, err := app.AuthService.CheckLogin(app.StatusLogger)
 	// if err != nil {
 	// 	return err
@@ -88,7 +94,7 @@ func runApp(app AppDependencies) error {
 	// 	fmt.Printf("\rCommand %s issued successfully\n", command)
 	// }
 
-	vehicleData, err := app.GetDataHandler(app.StatusLogger, authService, vehicleService, app.Flag)
+	vehicleData, err := app.GetDataHandler(app.StatusLogger, authService, vehicleService, wakeService)
 	if err != nil {
 		return err
 	}

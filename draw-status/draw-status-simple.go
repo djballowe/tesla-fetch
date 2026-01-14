@@ -3,10 +3,10 @@ package drawstatus
 import (
 	"fmt"
 	"strconv"
-	"tfetch/data"
+	apitypes "tfetch/api/types"
 )
 
-func (d *DrawService) DrawStatusSimple(vehicleData *data.VehicleData) error {
+func (d *DrawService) DrawStatusSimple(vehicleData *apitypes.VehicleData) error {
 	carMap := map[string]string{
 		"models": "Model S",
 		"model3": "Model 3",

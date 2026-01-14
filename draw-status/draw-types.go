@@ -1,10 +1,12 @@
 package drawstatus
 
-import "tfetch/data"
+import (
+	apitypes "tfetch/api/types"
+)
 
 type DrawService struct{}
 
 type DrawMethods interface {
-	DrawStatus(vehicleData *data.VehicleData)
-	DrawStatusSimple(vehicleData *data.VehicleData) error
+	DrawStatus(vehicleData *apitypes.VehicleData)
+	DrawStatusSimple(vehicleData *apitypes.VehicleData) error
 }

@@ -6,17 +6,17 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	apitypes "tfetch/api/types"
 	"tfetch/auth"
 	"tfetch/ui"
-	"tfetch/vehicle-state"
 )
 
-func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService vehicle.VehicleMethods) (*VehicleData, error) {
+func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService apitypes.VehicleMethods, wakeService apitypes.WakeMethods) (*apitypes.VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
-	apiResponse := &VehicleResponse{}
-	vehicleData := &VehicleData{}
+	apiResponse := &apitypes.VehicleResponse{}
+	vehicleData := &apitypes.VehicleData{}
 
 	vehicleState, err := vehicleDataService.VehicleState(token)
 	if err != nil {
@@ -24,7 +24,7 @@ func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleD
 	}
 
 	if vehicleState.State != "online" {
-		err := vehicleDataService.PollWake(token, status)
+		err := wakeService.PollWake(token, status)
 		if err != nil {
 			return nil, err
 		}
@@ -58,7 +58,7 @@ func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleD
 		return nil, err
 	}
 
-	vehicleData = &VehicleData{
+	vehicleData = &apitypes.VehicleData{
 		State:                apiResponse.Response.State,
 		BatteryLevel:         apiResponse.Response.ChargeState.BatteryLevel,
 		BatteryRange:         apiResponse.Response.ChargeState.BatteryRange,
@@ -79,21 +79,6 @@ func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleD
 		VehicleName:          apiResponse.Response.VehicleState.VehicleName,
 		CarType:              apiResponse.Response.VehicleConfig.CarType,
 		CarSpecialType:       apiResponse.Response.VehicleConfig.CarSpecialType,
-	}
-
-	vehicleJson, err := json.Marshal(vehicleData)
-	if err != nil {
-		return nil, err
-	}
-
-	filePath, err := getStateFilePath()
-	if err != nil {
-		return nil, err
-	}
-
-	err = os.WriteFile(filePath, vehicleJson, 0600)
-	if err != nil {
-		return nil, err
 	}
 
 	return vehicleData, nil

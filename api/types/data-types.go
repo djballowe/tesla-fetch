@@ -1,4 +1,4 @@
-package data
+package apitypes 
 
 import "errors"
 

@@ -3,7 +3,7 @@ package drawstatus
 import (
 	"fmt"
 	"math"
-	"tfetch/data"
+	apitypes "tfetch/api/types"
 )
 
 const (
@@ -12,7 +12,7 @@ const (
 	reset = "\033[0m"
 )
 
-func (d *DrawService) DrawStatus(vehicleData *data.VehicleData) {
+func (d *DrawService) DrawStatus(vehicleData *apitypes.VehicleData) {
 	logo := []string{
 		"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀",
 		"⢀⣀⣤⣤⣶⡶⠿⠟⠛⠛⠛⠛⠛⠛⠛⠛⠻⠿⢶⣶⣤⣤⣀⡀",
@@ -33,7 +33,7 @@ func (d *DrawService) DrawStatus(vehicleData *data.VehicleData) {
 	d.draw(logo, info)
 }
 
-func (d *DrawService) buildInfo(vehicleData *data.VehicleData) []string {
+func (d *DrawService) buildInfo(vehicleData *apitypes.VehicleData) []string {
 	carMap := map[string]string{
 		"models": "Model S",
 		"model3": "Model 3",
