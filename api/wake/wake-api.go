@@ -1,4 +1,4 @@
-package vehicle
+package wake
 
 import (
 	"encoding/json"
@@ -7,12 +7,15 @@ import (
 	"io"
 	"net/http"
 	"os"
+	apitypes "tfetch/api/types"
 	"tfetch/auth"
 	"tfetch/ui"
 	"time"
 )
 
-func Wake(token auth.Token) (*WakeResponse, error) {
+type WakeService struct{}
+
+func (w *WakeService) Wake(token auth.Token) (*apitypes.WakeResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
@@ -40,21 +43,21 @@ func Wake(token auth.Token) (*WakeResponse, error) {
 		return nil, err
 	}
 
-	var responseBody TeslaVehicleWakeResponse
+	var responseBody apitypes.TeslaVehicleWakeResponse
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
 		return nil, err
 	}
 
-	wakeResponse := &WakeResponse{
+	wakeResponse := &apitypes.WakeResponse{
 		State: responseBody.Response.State,
 	}
 
 	return wakeResponse, nil
 }
 
-func (p *VehicleService) PollWake(token auth.Token, status ui.StatusLoggerMethods) error {
+func (p *WakeService) PollWake(token auth.Token, status ui.StatusLoggerMethods) error {
 	status.Log("Waking Vehicle")
 	state := "offline"
 	timeout := time.After(30 * time.Second)
@@ -66,7 +69,7 @@ func (p *VehicleService) PollWake(token auth.Token, status ui.StatusLoggerMethod
 			return errors.New("Timeout, could not wake vehicle")
 
 		case <-ticker.C:
-			wakeResponse, err := Wake(token)
+			wakeResponse, err := p.Wake(token)
 			if err != nil {
 				return err
 			}

@@ -2,12 +2,12 @@ package vehiclecommand
 
 import (
 	"fmt"
+	apitypes "tfetch/api/types"
 	"tfetch/auth"
 	"tfetch/ui"
-	"tfetch/vehicle-state"
 )
 
-func IssueCommand(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService *vehicle.VehicleService) error {
+func IssueCommand(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService apitypes.VehicleMethods, wakeService apitypes.WakeMethods) error {
 	vehicleState, err := vehicleService.VehicleState(token)
 	if err != nil {
 		return err
@@ -16,7 +16,7 @@ func IssueCommand(status ui.StatusLoggerMethods, token auth.Token, command strin
 	vin := vehicleState.Vin
 
 	if vehicleState.State != "online" {
-		err := vehicleService.PollWake(token, status)
+		err := wakeService.PollWake(token, status)
 		if err != nil {
 			return err
 		}

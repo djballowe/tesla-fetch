@@ -1,15 +1,11 @@
-package vehicle
+package apitypes 
 
 import (
 	"tfetch/auth"
-	"tfetch/ui"
 )
-
-type VehicleService struct{}
 
 type VehicleMethods interface {
 	VehicleState(token auth.Token) (*VehicleStateResponse, error)
-	PollWake(token auth.Token, status ui.StatusLoggerMethods) error
 }
 
 type VehicleStateResponse struct {

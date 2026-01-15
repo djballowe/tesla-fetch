@@ -7,10 +7,13 @@ import (
 	"io"
 	"net/http"
 	"os"
+	apitypes "tfetch/api/types"
 	"tfetch/auth"
 )
 
-func (v *VehicleService) VehicleState(token auth.Token) (*VehicleStateResponse, error) {
+type VehicleService struct{}
+
+func (v *VehicleService) VehicleState(token auth.Token) (*apitypes.VehicleStateResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
@@ -43,14 +46,14 @@ func (v *VehicleService) VehicleState(token auth.Token) (*VehicleStateResponse, 
 		return nil, err
 	}
 
-	var responseBody TeslaVehicleApiResponse
+	var responseBody apitypes.TeslaVehicleApiResponse
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
 		return nil, err
 	}
 
-	vehicleState := &VehicleStateResponse{
+	vehicleState := &apitypes.VehicleStateResponse{
 		State: responseBody.Response.State,
 		Vin:   responseBody.Response.Vin,
 	}
