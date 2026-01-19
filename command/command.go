@@ -1,13 +1,11 @@
-package vehiclecommand
+package command
 
 import (
 	"fmt"
-	apitypes "tfetch/api/types"
-	"tfetch/auth"
-	"tfetch/ui"
+	"tfetch/model"
 )
 
-func IssueCommand(status ui.StatusLoggerMethods, token auth.Token, command string, vehicleService apitypes.VehicleMethods, wakeService apitypes.WakeMethods) error {
+func IssueCommand(status model.StatusLoggerMethods, token model.Token, command string, vehicleService model.VehicleMethods, wakeService model.WakeMethods) error {
 	vehicleState, err := vehicleService.VehicleState(token)
 	if err != nil {
 		return err
@@ -22,7 +20,7 @@ func IssueCommand(status ui.StatusLoggerMethods, token auth.Token, command strin
 		}
 	}
 
-	var commandReq = CommandRequest{
+	var commandReq = model.CommandRequest{
 		AuthToken: token.AccessToken,
 		Vin:       vin,
 		Command:   command,

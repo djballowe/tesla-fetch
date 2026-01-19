@@ -14,10 +14,11 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"tfetch/model"
 	"time"
 )
 
-func (a *AuthService) CallAuth() (*Token, error) {
+func (a *AuthService) CallAuth() (*model.Token, error) {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/authorize")
 	if err != nil {
 		log.Fatalf("Malformed auth url: %s", err)
@@ -72,10 +73,10 @@ func (a *AuthService) CallAuth() (*Token, error) {
 	return tokenStore, nil
 }
 
-var tokenChan = make(chan *Token)
+var tokenChan = make(chan *model.Token)
 var errChan = make(chan error)
 
-func startServer(authUrl string) (*Token, error) {
+func startServer(authUrl string) (*model.Token, error) {
 	listener, err := net.Listen("tcp", "localhost:8080")
 	if err != nil {
 		return nil, err
@@ -117,11 +118,13 @@ func callback(w http.ResponseWriter, r *http.Request) {
 	if state != StateStore || state == "" {
 		http.Error(w, "Internal auth error", http.StatusBadRequest)
 		errChan <- fmt.Errorf("Internal auth error state missing or mismatch")
+		return
 	}
 
 	if code == "" {
 		http.Error(w, "Internal auth error", http.StatusBadRequest)
 		errChan <- fmt.Errorf("Internal auth error missing code")
+		return
 	}
 
 	tokens, err := exchangeCodeForToken(code)
@@ -133,7 +136,6 @@ func callback(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("Authentication successful! You can close this window."))
 	tokenChan <- tokens
-	return
 }
 
 func loadEnvConfig() (*Config, error) {
@@ -151,7 +153,7 @@ func loadEnvConfig() (*Config, error) {
 	return config, nil
 }
 
-func exchangeCodeForToken(code string) (*Token, error) {
+func exchangeCodeForToken(code string) (*model.Token, error) {
 	baseUrl, err := url.Parse("https://auth.tesla.com/oauth2/v3/token")
 	if err != nil {
 		return nil, err
@@ -184,7 +186,7 @@ func exchangeCodeForToken(code string) (*Token, error) {
 	}
 	defer resp.Body.Close()
 
-	var tokenResponse Token
+	var tokenResponse model.Token
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
 		return nil, err
 	}
@@ -207,7 +209,6 @@ func openBrowser(url string) error {
 		err = exec.Command("xdg-open", url).Start()
 	case "darwin":
 		err = exec.Command("open", url).Start()
-	// windows can eat sand
 	default:
 		err = fmt.Errorf("unsupported platform")
 	}

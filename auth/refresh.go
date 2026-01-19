@@ -6,10 +6,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"tfetch/model"
 	"time"
 )
 
-func (a *AuthService) RefreshToken(refreshToken string) (*Token, error) {
+func (a *AuthService) RefreshToken(refreshToken string) (*model.Token, error) {
 	config, err := loadEnvConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %s", err)
@@ -39,7 +40,7 @@ func (a *AuthService) RefreshToken(refreshToken string) (*Token, error) {
 	}
 	defer resp.Body.Close()
 
-	var tokenResponse Token
+	var tokenResponse model.Token
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
 		return nil, err
 	}

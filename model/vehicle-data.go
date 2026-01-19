@@ -1,35 +1,32 @@
-package apitypes 
+package model
 
-import "errors"
-
-var ErrNoStateFile = errors.New("no state file exists")
-
-type VehicleData struct {
-	State                string  `json:"state"`
-	BatteryLevel         int     `json:"battery_level"`
-	BatteryRange         float64 `json:"battery_range"`
-	ChargeRate           float64 `json:"charge_rate"`
-	ChargingState        string  `json:"charging_state"`
-	ChargeLimitSoc       int     `json:"charge_limit_soc"`
-	MinutesToFullCharge  int     `json:"minutes_to_full_charge"`
-	TimeToFullCharge     float64 `json:"time_to_full_charge"`
-	InsideTemp           int     `json:"inside_temp"`
-	PassengerTempSetting float64 `json:"passenger_temp_setting"`
-	DriverTempSetting    float64 `json:"driver_temp_setting"`
-	IsClimateOn          bool    `json:"is_climate_on"`
-	IsPreconditioning    bool    `json:"is_preconditioning"`
-	OutsideTemp          int     `json:"outside_temp"`
-	Locked               bool    `json:"locked"`
-	Odometer             int     `json:"odometer"`
-	Color                string  `json:"exterior_color"`
-	VehicleName          string  `json:"vehicle_name"`
-	CarType              string  `json:"car_type"`
-	CarSpecialType       string  `json:"car_special_type"`
+type TeslaVehicleApiResponse struct {
+	Response struct {
+		ID             int64  `json:"id"`
+		UserID         int64  `json:"user_id"`
+		VehicleID      int64  `json:"vehicle_id"`
+		Vin            string `json:"vin"`
+		Color          any    `json:"color"`
+		AccessType     string `json:"access_type"`
+		GranularAccess struct {
+			HidePrivate bool `json:"hide_private"`
+		} `json:"granular_access"`
+		Tokens                 any    `json:"tokens"`
+		State                  string `json:"state"`
+		InService              bool   `json:"in_service"`
+		IDS                    string `json:"id_s"`
+		CalendarEnabled        bool   `json:"calendar_enabled"`
+		APIVersion             int    `json:"api_version"`
+		BackseatToken          any    `json:"backseat_token"`
+		BackseatTokenUpdatedAt any    `json:"backseat_token_updated_at"`
+		BleAutopairEnrolled    bool   `json:"ble_autopair_enrolled"`
+	} `json:"response"`
 }
 
-type DataResponse struct {
-	Body       VehicleData
-	StatusCode int
+type TeslaVehicleWakeResponse struct {
+	Response struct {
+		State string `json:"state"`
+	}
 }
 
 type VehicleResponse struct {

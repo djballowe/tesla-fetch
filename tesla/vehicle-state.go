@@ -1,36 +1,34 @@
-package vehicle
+package tesla
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	apitypes "tfetch/api/types"
-	"tfetch/auth"
+	"tfetch/model"
 )
 
 type VehicleService struct{}
 
-func (v *VehicleService) VehicleState(token auth.Token) (*apitypes.VehicleStateResponse, error) {
+func (v *VehicleService) VehicleState(token model.Token) (*model.VehicleStateResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
 	url := fmt.Sprintf("%s/vehicles/%s", baseUrl, carId)
 
 	client := &http.Client{}
-	vehicleStateRequest, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	vehicleStateRequest.Header = http.Header{
+	req.Header = http.Header{
 		"Content-Type":  {"application/json"},
 		"Authorization": {"Bearer " + token.AccessToken},
 	}
 
-	res, err := client.Do(vehicleStateRequest)
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -42,18 +40,17 @@ func (v *VehicleService) VehicleState(token auth.Token) (*apitypes.VehicleStateR
 	}
 
 	if res.StatusCode != 200 {
-		err = errors.New(fmt.Sprintf("vehicle state response failed with status code %s", res.Status))
-		return nil, err
+		return nil, fmt.Errorf("vehicle state response failed with status code %s", res.Status)
 	}
 
-	var responseBody apitypes.TeslaVehicleApiResponse
+	var responseBody model.TeslaVehicleApiResponse
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
 		return nil, err
 	}
 
-	vehicleState := &apitypes.VehicleStateResponse{
+	vehicleState := &model.VehicleStateResponse{
 		State: responseBody.Response.State,
 		Vin:   responseBody.Response.Vin,
 	}

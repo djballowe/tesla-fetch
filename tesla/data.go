@@ -1,4 +1,4 @@
-package data
+package tesla
 
 import (
 	"encoding/json"
@@ -6,19 +6,17 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	apitypes "tfetch/api/types"
-	"tfetch/auth"
-	"tfetch/ui"
+	"tfetch/model"
 )
 
-func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleDataService apitypes.VehicleMethods, wakeService apitypes.WakeMethods) (*apitypes.VehicleData, error) {
+func GetVehicleData(status model.StatusLoggerMethods, token model.Token, vehicleService model.VehicleMethods, wakeService model.WakeMethods) (*model.VehicleData, error) {
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 	carId := os.Getenv("MY_CAR_ID")
 
-	apiResponse := &apitypes.VehicleResponse{}
-	vehicleData := &apitypes.VehicleData{}
+	apiResponse := &model.VehicleResponse{}
+	vehicleData := &model.VehicleData{}
 
-	vehicleState, err := vehicleDataService.VehicleState(token)
+	vehicleState, err := vehicleService.VehicleState(token)
 	if err != nil {
 		return nil, err
 	}
@@ -33,17 +31,17 @@ func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleD
 	url := fmt.Sprintf("%s/vehicles/%s/vehicle_data", baseUrl, carId)
 
 	client := &http.Client{}
-	vehicleDataRequest, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	vehicleDataRequest.Header = http.Header{
+	req.Header = http.Header{
 		"Content-Type":  {"application/json"},
 		"Authorization": {"Bearer " + token.AccessToken},
 	}
 
-	res, err := client.Do(vehicleDataRequest)
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +56,7 @@ func GetVehicleDataApi(status ui.StatusLoggerMethods, token auth.Token, vehicleD
 		return nil, err
 	}
 
-	vehicleData = &apitypes.VehicleData{
+	vehicleData = &model.VehicleData{
 		State:                apiResponse.Response.State,
 		BatteryLevel:         apiResponse.Response.ChargeState.BatteryLevel,
 		BatteryRange:         apiResponse.Response.ChargeState.BatteryRange,

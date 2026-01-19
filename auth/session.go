@@ -2,10 +2,10 @@ package auth
 
 import (
 	"os"
-	"tfetch/ui"
+	"tfetch/model"
 )
 
-func (a *AuthService) CheckLogin(status ui.StatusLoggerMethods) (*Token, error) {
+func (a *AuthService) CheckLogin(status model.StatusLoggerMethods) (*model.Token, error) {
 	passphrase := os.Getenv("PASSPHRASE")
 	store := TokenStore{}
 	token, err := store.LoadTokens(passphrase)
