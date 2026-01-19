@@ -8,7 +8,7 @@ import (
 	"tfetch/auth"
 	"tfetch/command"
 	"tfetch/model"
-	"tfetch/tesla"
+	"tfetch/tesla-data"
 	"tfetch/ui"
 
 	"github.com/joho/godotenv"
