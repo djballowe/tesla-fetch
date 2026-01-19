@@ -1,9 +1,10 @@
-package drawstatus
+package ui
 
 import (
 	"fmt"
 	"math"
-	apitypes "tfetch/api/types"
+	"strconv"
+	"tfetch/model"
 )
 
 const (
@@ -12,7 +13,9 @@ const (
 	reset = "\033[0m"
 )
 
-func (d *DrawService) DrawStatus(vehicleData *apitypes.VehicleData) {
+type DrawService struct{}
+
+func (d *DrawService) DrawStatus(vehicleData *model.VehicleData) {
 	logo := []string{
 		"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀",
 		"⢀⣀⣤⣤⣶⡶⠿⠟⠛⠛⠛⠛⠛⠛⠛⠛⠻⠿⢶⣶⣤⣤⣀⡀",
@@ -28,12 +31,45 @@ func (d *DrawService) DrawStatus(vehicleData *apitypes.VehicleData) {
 		"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ",
 	}
 
-	info := d.buildInfo(vehicleData)
+	info := buildInfo(vehicleData)
 
-	d.draw(logo, info)
+	draw(logo, info)
 }
 
-func (d *DrawService) buildInfo(vehicleData *apitypes.VehicleData) []string {
+func (d *DrawService) DrawStatusSimple(vehicleData *model.VehicleData) error {
+	carMap := map[string]string{
+		"models": "Model S",
+		"model3": "Model 3",
+		"modelx": "Model X",
+		"modely": "Model Y",
+	}
+
+	info := []string{
+		"Nickname: " + vehicleData.VehicleName,
+		"Model: " + carMap[vehicleData.CarType],
+		"Color: " + vehicleData.Color,
+		"Miles: " + strconv.Itoa(vehicleData.Odometer),
+		"Charge: " + strconv.Itoa(vehicleData.BatteryLevel) + "%",
+		"Charge Limit: " + strconv.Itoa(vehicleData.ChargeLimitSoc),
+		"Range: " + strconv.FormatFloat(vehicleData.BatteryRange, 'f', 1, 64) + " Miles",
+		"Charge State: " + vehicleData.ChargingState,
+		"Charge Rate: " + strconv.FormatFloat(vehicleData.ChargeRate, 'f', 1, 64),
+		"Climate On: " + strconv.FormatBool(vehicleData.IsClimateOn),
+		"Climate Inside: " + strconv.Itoa(convertClimate(vehicleData.InsideTemp)) + "°F",
+		"Climate Outside: " + strconv.Itoa(convertClimate(vehicleData.OutsideTemp)) + "°F",
+		"Driver Temp Setting: " + strconv.Itoa(convertClimate(int(vehicleData.DriverTempSetting))) + "°F",
+		"Passenger Temp Setting: " + strconv.Itoa(convertClimate(int(vehicleData.PassengerTempSetting))) + "°F",
+		"Locked: " + strconv.FormatBool(vehicleData.Locked),
+	}
+
+	for _, data := range info {
+		fmt.Println(data)
+	}
+
+	return nil
+}
+
+func buildInfo(vehicleData *model.VehicleData) []string {
 	carMap := map[string]string{
 		"models": "Model S",
 		"model3": "Model 3",
@@ -69,7 +105,7 @@ func (d *DrawService) buildInfo(vehicleData *apitypes.VehicleData) []string {
 	return info
 }
 
-func (d *DrawService) draw(logo []string, info []string) {
+func draw(logo []string, info []string) {
 	logoSize := len(logo)
 	infoSize := len(info)
 	longest := findLongestLine(logo)
@@ -90,7 +126,6 @@ func (d *DrawService) draw(logo []string, info []string) {
 		infoIdx++
 		fmt.Printf("\n")
 	}
-
 }
 
 func findLongestLine(logo []string) int {
@@ -99,13 +134,6 @@ func findLongestLine(logo []string) int {
 		longest = max(len([]rune(line)), longest)
 	}
 	return longest
-}
-
-func max(a int, b int) int {
-	if a < b {
-		return b
-	}
-	return a
 }
 
 func convertClimate(temp int) int {

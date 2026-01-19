@@ -1,4 +1,4 @@
-package wake
+package tesla
 
 import (
 	"encoding/json"
@@ -7,32 +7,30 @@ import (
 	"io"
 	"net/http"
 	"os"
-	apitypes "tfetch/api/types"
-	"tfetch/auth"
-	"tfetch/ui"
+	"tfetch/model"
 	"time"
 )
 
 type WakeService struct{}
 
-func (w *WakeService) Wake(token auth.Token) (*apitypes.WakeResponse, error) {
+func (w *WakeService) Wake(token model.Token) (*model.WakeResponse, error) {
 	carId := os.Getenv("MY_CAR_ID")
 	baseUrl := os.Getenv("TESLA_BASE_URL")
 
 	url := fmt.Sprintf("%s/vehicles/%s/wake_up", baseUrl, carId)
 
 	client := &http.Client{}
-	vehicleStateRequest, err := http.NewRequest("POST", url, nil)
+	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	vehicleStateRequest.Header = http.Header{
+	req.Header = http.Header{
 		"Content-Type":  {"application/json"},
 		"Authorization": {"Bearer " + token.AccessToken},
 	}
 
-	res, err := client.Do(vehicleStateRequest)
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -43,21 +41,21 @@ func (w *WakeService) Wake(token auth.Token) (*apitypes.WakeResponse, error) {
 		return nil, err
 	}
 
-	var responseBody apitypes.TeslaVehicleWakeResponse
+	var responseBody model.TeslaVehicleWakeResponse
 
 	err = json.Unmarshal(body, &responseBody)
 	if err != nil {
 		return nil, err
 	}
 
-	wakeResponse := &apitypes.WakeResponse{
+	wakeResponse := &model.WakeResponse{
 		State: responseBody.Response.State,
 	}
 
 	return wakeResponse, nil
 }
 
-func (p *WakeService) PollWake(token auth.Token, status ui.StatusLoggerMethods) error {
+func (w *WakeService) PollWake(token model.Token, status model.StatusLoggerMethods) error {
 	status.Log("Waking Vehicle")
 	state := "offline"
 	timeout := time.After(30 * time.Second)
@@ -69,7 +67,7 @@ func (p *WakeService) PollWake(token auth.Token, status ui.StatusLoggerMethods) 
 			return errors.New("Timeout, could not wake vehicle")
 
 		case <-ticker.C:
-			wakeResponse, err := p.Wake(token)
+			wakeResponse, err := w.Wake(token)
 			if err != nil {
 				return err
 			}

@@ -1,10 +1,5 @@
 package ui
 
-type StatusLoggerMethods interface {
-	Log(message string)
-	Done()
-}
-
 type ProgressUpdate struct {
 	Message string
 	Done    bool
@@ -21,11 +16,11 @@ func NewStatusLogger(ch chan ProgressUpdate) *StatusLogger {
 func (s *StatusLogger) Log(message string) {
 	s.status <- ProgressUpdate{Message: message}
 }
+
 func (s *StatusLogger) Done() {
 	s.status <- ProgressUpdate{Done: true}
 }
 
-// nil status reporter
 type NoopLogger struct{}
 
 func NewNoopLogger() *NoopLogger {

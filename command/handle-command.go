@@ -1,17 +1,19 @@
-package vehiclecommand
+package command
 
 import (
 	"context"
 	"fmt"
 	"os"
 	"path/filepath"
+	"tfetch/model"
 	"time"
+
 	"github.com/teslamotors/vehicle-command/pkg/account"
 	"github.com/teslamotors/vehicle-command/pkg/protocol"
 	"github.com/teslamotors/vehicle-command/pkg/vehicle"
 )
 
-func HandleCommand(req CommandRequest) error {
+func HandleCommand(req model.CommandRequest) error {
 	if req.Vin == "" {
 		return fmt.Errorf("no vehicle VIN found")
 	}
@@ -26,12 +28,12 @@ func HandleCommand(req CommandRequest) error {
 
 	userAgent := ""
 
-	account, err := account.New(string(req.AuthToken), userAgent)
+	acct, err := account.New(string(req.AuthToken), userAgent)
 	if err != nil {
 		return fmt.Errorf("error creating account: %s", err.Error())
 	}
 
-	car, err := account.GetVehicle(ctx, req.Vin, privateKey, nil)
+	car, err := acct.GetVehicle(ctx, req.Vin, privateKey, nil)
 	if err != nil {
 		return fmt.Errorf("error getting vehicle: %s", err.Error())
 	}

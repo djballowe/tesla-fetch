@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"tfetch/model"
 	"time"
 )
 
@@ -54,7 +55,7 @@ func getKey(code []byte, salt []byte) ([]byte, error) {
 	return k.Sum(nil), nil
 }
 
-func (store *TokenStore) SaveTokens(tokens *Token, salt []byte) error {
+func (store *TokenStore) SaveTokens(tokens *model.Token, salt []byte) error {
 	data, err := json.Marshal(tokens)
 	if err != nil {
 		return err
@@ -97,7 +98,7 @@ func (store *TokenStore) SaveTokens(tokens *Token, salt []byte) error {
 	return os.WriteFile(filePath, jsonData, 0600)
 }
 
-func (store *TokenStore) LoadTokens(code string) (*Token, error) {
+func (store *TokenStore) LoadTokens(code string) (*model.Token, error) {
 	filePath, err := getConfigFilePath()
 	if err != nil {
 		return nil, err
@@ -141,7 +142,7 @@ func (store *TokenStore) LoadTokens(code string) (*Token, error) {
 		return nil, err
 	}
 
-	var tokens Token
+	var tokens model.Token
 	err = json.Unmarshal(decrypt, &tokens)
 	if err != nil {
 		return nil, err
